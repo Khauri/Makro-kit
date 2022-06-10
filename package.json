@@ -1,0 +1,15 @@
+{
+  "name": "makro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "website"
+  ],
+  "volta": {
+    "node": "16.15.0",
+    "yarn": "2.4.3"
+  }
+}
