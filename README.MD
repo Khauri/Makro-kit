@@ -2,21 +2,23 @@ WARNING:
 
 I give no guarantees that this will work on your machine. See the Development section for some known issues and workarounds.
 
-# Makro
+# Makro-kit
 
-Experimental file-system based router based loosely on svelekit, n[e/u]xtjs, remix, and @marko/serve.
+Yes: `Makro-kit` and not `Marko-kit`. This package is meant to complement my WIP UI project [mikro](https://github.com/Khauri/mikro-ui).
+
+Makro-kit is an experimental file-system based router based loosely on `svelekit`, `n[e/u]xtjs`, `remix`, and `@marko/serve`.
 
 Uses:
   - marko
   - vite
   - fastify
 
-This is still in very early stages but the end goal is a complete, zero-config, production ready  
+This is still in very early stages but the end goal is a complete, zero-config, production ready server by running a single command.
 
 ## Routes
 
 Like many file-system based routers, the directory structure of the project maps nearly 1:1 with the routing layout of the server.
-Currently all pages and endpoints go into a `routes` folder at the root of the project (not yet configurable).
+Currently all pages and endpoints go into a `routes` folder at the root of the project. This can be configured through command line arguments or by providing a `makroconfig.json`.
 
 ### Endpoints
 
@@ -32,11 +34,11 @@ export function get(request, reply) {
 }
 ```
 
-This can be useful for separating API routes from your templates and generally decouple rendering from.
+This can be useful for separating API routes from your templates and generally decouple template rendering from api functionality.
 
 Each method also has an optional `[method]Options` you an supply in order to provide fastify schemas or other functionality.
 
-The default/register export can also be used to receive the fastify app instance itself, allowing you to pretty much do whatever you want.
+The `default`/`register` export can also be used to receive the fastify app instance itself, allowing you to pretty much do whatever you want, ie adding external packages.
 
 ### Pages/Templates
 
@@ -44,12 +46,14 @@ Any `.marko` file is automatically rendered as a template.
 
 Example:
 ```
-/routes/items/[id].marko
+/routes/items/:id/index.marko
 ```
 
-Now any `GET` requests to the route will render the template.
+(Note: currently only using an `index.marko` works, ie `[name]/index.marko`, but other file names will be supported soon maybe).
 
-In the future other file extensions such a .md may also be supported for generating marko pages from markdown.
+Now any `GET` requests to the route `/items/:id` will render the template.
+
+In the future other file extensions such a `.md` may also be supported for generating marko pages from markdown.
 
 #### Params
 
@@ -63,14 +67,14 @@ you would like to be passed as input.
 
 #### component folders
 
-In Marko the `components` folder
+In Marko the `components` folder is traditionally used to specify a set of tags that aren't normally rendered as pages.
 
-Note that any folder name `components` will be ignored by default.
+Therefor that any folder name `components` will be ignored by default.
 To include the components folder as a template you may prefix the folder name with `@`.
 
 Example:
 ```
-/routes/items/[id]/@components/[component_id]
+/routes/items/:id/@components/:component_id
 ```
 
 This will result in a route of `/items/:id/components/:component_id`
