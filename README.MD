@@ -40,6 +40,16 @@ Each method also has an optional `[method]Options` you an supply in order to pro
 
 The `default`/`register` export can also be used to receive the fastify app instance itself, allowing you to pretty much do whatever you want, ie adding external packages.
 
+### Hooks
+
+Hooks are js files that export functions that get run before a template is loaded. This can be used to pass data into the template or redirect the user.
+Hooks can be used to create authenticated routes, for instance, by authenticating a user prior to rendering the template.
+
+Hooks are created by prefixing a js file prefixed with `_` that is named after the route it plans to hook into.
+If you name a hook `_index.js` or `_[folder_name].js` it will apply to all nested routes as well whereas.
+
+Certain data that a hook returns may be passed as input to the component.
+
 ### Pages/Templates
 
 Any `.marko` file is automatically rendered as a template.
@@ -52,6 +62,10 @@ Example:
 Now any `GET` requests to the route `/items/:id` will render the template.
 
 In the future other file extensions such a `.md` may also be supported for generating marko pages from markdown.
+
+### Private Modules
+
+Any module prefixed with `__` (two underscores) or `.` (a single dot) will be private modules and will not create a route or a template.
 
 #### Params
 
