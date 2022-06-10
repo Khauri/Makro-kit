@@ -49,7 +49,6 @@ async function registerDirectory(dir, rootDir, server) {
       const routePath = candidate.isIndex 
         ? `/${path.relative(rootDir, dir)}`
         : `/${path.relative(rootDir, dir)}/${candidate.filename}`;
-      console.log(candidate.path, routePath);
       if(candidate.type === 'js') {
         server.registerJSHandler(module, routePath);
       } else {
