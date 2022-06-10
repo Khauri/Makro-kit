@@ -49,8 +49,6 @@ Example:
 /routes/items/:id/index.marko
 ```
 
-(Note: currently only using an `index.marko` works, ie `[name]/index.marko`, but other file names will be supported soon maybe).
-
 Now any `GET` requests to the route `/items/:id` will render the template.
 
 In the future other file extensions such a `.md` may also be supported for generating marko pages from markdown.
