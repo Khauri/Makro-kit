@@ -69,7 +69,7 @@ function Arr({of, max, min} = {}) {
   }
 }
 
-function Obj({properties = {}, allowAdditional = false} = {}) {
+function Obj(properties = {}, {allowAdditional = false} = {}) {
   return {
     validate: (input) => {
       if(typeof input !== 'object' || Array.isArray(input)) {
@@ -78,18 +78,27 @@ function Obj({properties = {}, allowAdditional = false} = {}) {
     },
     resolve: (input, p) => {
       // TODO: Handle additional properties
-      return Object.entries(properties).reduce((acc, [key, config]) => {
+      console.log({properties});
+      const handled = Object.entries(properties).reduce((acc, [key, prop]) => {
         const part = p ? `${p}.${key}` : key;
         const val = input[key];
+        console.log(key, val);
         if(typeof val === 'undefined') {
-          if(config.required) {
+          if(prop.required) {
             return new Error(`${part} is required to be defined in the config`);
           }
-          return acc;
         }
-        acc[key] = config.resolve(input, part);
+        acc[key] = typeof val === 'undefined' ? val : prop.resolve(val, part);
         return acc;
       }, {});
+      const additional = Object.keys(input)
+        .filter(key => !handled.hasOwnProperty(key))
+        .reduce((acc, key) => {
+          acc[key] = input[key];
+          return acc;
+        }, {});
+      // console.log({additional, handled});
+      return {...handled};
     }
   };
 }
@@ -97,8 +106,9 @@ function Obj({properties = {}, allowAdditional = false} = {}) {
 // Base configuration
 export const config = Obj({
   dir: Str(),
-  mode: Str({values: ['dev', 'prod']}),
+  mode: Str({values: ['development', 'production']}),
   routePrefix: Str(),
+  routesDir: Str(),
   viteConfig: Any(Obj(), Str()),
 });
 
@@ -106,7 +116,7 @@ export const config = Obj({
 export function findConfigFile(from = process.cwd()) {
   let last = from;
   do {
-    const config = `${p}/.makroconfig.json`;
+    const config = `${last}/.makroconfig.js`;
     if(fs.existsSync(config)){
       return config;
     }
@@ -116,11 +126,17 @@ export function findConfigFile(from = process.cwd()) {
 }
 
 // Reads the config file
-export function getConfigFile(from) {
+export async function getConfigFile(from) {
   const configPath = findConfigFile(from);
-  return JSON.parse(fs.readFileSync(configPath).toString());
+  if(!configPath) {
+    return {};
+  }
+  const result = await import(configPath);
+  return result.default ?? result;
 }
 
-export function getConfig(from) {
-  return config.resolve(getConfigFile(from));
+export async function getConfig(from) {
+  const userConf = await getConfigFile(from);
+  console.log(userConf);
+  return config.resolve(userConf);
 }

@@ -1,25 +1,4 @@
-<h1>Tutorials</h1>
+import * as html from './index.md';
+${console.log(html)}
 
-<p>Tutorials for common actions. </p>
-
-<h2> Authenticated routes </h2>
-
-<p>
-  When an unauthenticated user accesses a route that requires authentication there are two typical redirection strategies.
-</p>
-<ol>
-  <li>
-    <p>
-      Present them with an authentication page instead of the usual template.
-    </p>
-  </li>
-  <li>
-    <p>
-      Redirect them to another page. (Whether it's a login page, a 404 page, or similar)
-    </p>
-  </li>
-</ol>
-
-<p> In both cases we're going to need a plugin/middleware of some kind that can determine if the user is allowed to access the route. </p>
-
-<p> In order to do this we're going to create an _admin.js file, assuming we have an existing `routes/admin` folder. </p>
+-- $!{html}

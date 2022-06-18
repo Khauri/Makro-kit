@@ -1,6 +1,7 @@
 import path from "node:path";
 import url from 'node:url';
 import vite from 'vite';
+import {getConfig} from './src/core/config.js'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -9,6 +10,8 @@ const { NODE_ENV = "development", PORT = 3000 } = process.env;
 export async function dev(dir) {
   const { once } = await import("events");
   const { createServer } = await import("vite");
+  const config = await getConfig(dir);
+  console.log({config});
   // const root = vite.searchForWorkspaceRoot(dir);
   const root = dir;
   const devServer = await createServer({
