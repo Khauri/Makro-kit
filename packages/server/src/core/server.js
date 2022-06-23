@@ -10,13 +10,13 @@ function normalizeRoute(path) {
 }
 
 export default class Server {
-  app = fastify();
+  app = fastify({});
   loaded = false;
 
   async load(dir, config) {
     if(this.loaded) return this;
     const {app} =  this;
-    app.register(import("@marko/fastify"));
+    app.register(await import("@marko/fastify"));
     // TODO: Grab this value from the config
     if (process.env.NODE_ENV === "production") {
       app.register(import("fastify-compress"), {

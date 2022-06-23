@@ -1,6 +1,6 @@
 import path from "node:path";
 import url from 'node:url';
-import vite from 'vite';
+import marko from "@marko/vite";
 import {getConfig} from './src/core/config.js'
 
 const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
@@ -11,15 +11,19 @@ export async function dev(dir) {
   const { once } = await import("events");
   const { createServer } = await import("vite");
   const config = await getConfig(dir);
-  console.log({config});
   // const root = vite.searchForWorkspaceRoot(dir);
   const root = dir;
   const devServer = await createServer({
     // ...config,
-    configFile: path.join(__dirname, "vite.config.js"),
-    server: { 
-      middlewareMode: "ssr",
+    ...config.viteConfig,
+    plugins: [marko(), ...config.viteConfig?.plugins ?? []],
+    // configFile: path.join(__dirname, "vite.config.js"),
+    server: {
+      port: config.port ?? PORT,
       base: '/',
+      strictPort: true,
+      middlewareMode: "ssr",
+      ...config.viteConfig.server,
       // fs: {
       //   allow: [
       //     path.join(__dirname),
@@ -28,25 +32,29 @@ export async function dev(dir) {
       //     path.join(__dirname, 'node_modules'),
       //   ]
       // },
-      port: 3000,
-      strictPort: true,
     },
     build: {
-			rollupOptions: {
-				// Vite dependency crawler needs an explicit JS entry point
-				// eventhough server otherwise works without it
-				input: `${root}/index.js`
-			}
+      ...config.viteConfig.build,
+      outDir: "dist", // Server and client builds should output assets to the same folder.
+      emptyOutDir: false, // Avoid server / client deleting files from each other.
+      rollupOptions: {
+        output: {
+          // Output ESM for the server build also.
+          // Remove when https://github.com/vitejs/vite/issues/2152 is resolved.
+          format: "es",
+        },
+        // Vite dependency crawler needs an explicit JS entry point
+        // eventhough server otherwise works without it
+        input: `${root}/index.js`
+      },
 		},
     resolve: {
       alias: {
         '~': root,
       },
     },
-    // optimizeDeps: {include: ['makro']},
     root,
   });
-  // console.log(devServer.config.build);
   const server = devServer.middlewares
     .use(async (req, res, next) => {
       try {
@@ -55,7 +63,7 @@ export async function dev(dir) {
         await server.load(dir);
         await server.app.ready();
         server.app.routing(req, res);
-        next();
+        // next();
       } catch (err) {
         return next(err);
       }

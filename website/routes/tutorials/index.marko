@@ -1,4 +1,25 @@
-import * as html from './index.md';
-${console.log(html)}
+import {html, toc} from './index.md';
 
--- $!{html}
+<style>
+  .page {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+  }
+  .sidebar {
+    width: 200px;
+  }
+  .content {
+    flex: 1;
+  }
+</style>
+
+<div.page>
+  <div.sidebar>
+    Makro Kit
+  </div>
+  <article.content>
+    $!{html}
+  </article>
+</div>

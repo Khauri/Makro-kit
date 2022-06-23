@@ -6,7 +6,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function Str({values, pattern, required} = {}) {
-  return {type: 'string', required};
+  return {
+    type: 'string',
+    required,
+    validate: (input) => typeof input === 'string',
+  };
 }
 
 function Num({integer, required, loose = false} = {}) {
@@ -38,8 +42,8 @@ function Any(...of) {
       return true;
     },
     resolve: (input, p) => {
-      const first = of.find(v => v.validate(input, p) === true);
-      return first.resolve?.(input, p) ?? input;
+      const first = of.find(v => v.validate?.(input, p) === true);
+      return first?.resolve?.(input, p) ?? input;
     },
   }
 }
@@ -71,34 +75,37 @@ function Arr({of, max, min} = {}) {
 
 function Obj(properties = {}, {allowAdditional = false} = {}) {
   return {
+    type: 'object',
     validate: (input) => {
       if(typeof input !== 'object' || Array.isArray(input)) {
         return false;
       }
+      // TODO: Check that all the properties match the schema
+      return true;
     },
     resolve: (input, p) => {
       // TODO: Handle additional properties
-      console.log({properties});
       const handled = Object.entries(properties).reduce((acc, [key, prop]) => {
         const part = p ? `${p}.${key}` : key;
         const val = input[key];
-        console.log(key, val);
         if(typeof val === 'undefined') {
           if(prop.required) {
             return new Error(`${part} is required to be defined in the config`);
           }
         }
-        acc[key] = typeof val === 'undefined' ? val : prop.resolve(val, part);
+        acc[key] = typeof val === 'undefined' ? val : prop.resolve?.(val, part) ?? val;
         return acc;
       }, {});
-      const additional = Object.keys(input)
-        .filter(key => !handled.hasOwnProperty(key))
-        .reduce((acc, key) => {
+      const additional = Object.keys(input).reduce((acc, key) => {
+        if(!properties[key]) {
           acc[key] = input[key];
-          return acc;
-        }, {});
-      // console.log({additional, handled});
-      return {...handled};
+        }
+        return acc;
+      }, {});
+      if(!allowAdditional && Object.keys(additional).length > 0) {
+        return new Error(`Additional properties are not allowed for property ${p}`);
+      }
+      return {...handled, ...additional};
     }
   };
 }
@@ -109,7 +116,7 @@ export const config = Obj({
   mode: Str({values: ['development', 'production']}),
   routePrefix: Str(),
   routesDir: Str(),
-  viteConfig: Any(Obj(), Str()),
+  viteConfig: Any(Obj({}, {allowAdditional: true}), Str()),
 });
 
 // Walks upwards from the cwd to find a markoconfig.js
@@ -137,6 +144,5 @@ export async function getConfigFile(from) {
 
 export async function getConfig(from) {
   const userConf = await getConfigFile(from);
-  console.log(userConf);
   return config.resolve(userConf);
 }

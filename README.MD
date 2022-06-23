@@ -121,7 +121,7 @@ It also seemed to be required to install `@marko/tags-api-preview` in the `websi
 
 I believe having an `index.js` file also seemed to be required for some reason due to vite's dependency crawling.
 
-Also if you add a components folder somewhere you have to restart the entire vite server or it won't be able to find the tag. And in some cases when using custom tags if an error is thrown the error doesn't seem to be reported and the page instead just fails to load.
+Editing markdown files doesn't seem to trigger a page reload.
 
 ## Plans/Ides
 
