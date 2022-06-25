@@ -5,12 +5,15 @@ import path from "node:path";
 import {setupDirectory} from './loader.js';
 
 function normalizeRoute(path) {
-  path = path.replace(/\[([^]+)\]/g, ':$1').replace(/\/@/g, '/');
+  path = path
+    .replace(/\[\.\.\.[^\]]+\]/g, '*') // replace [...name] with *
+    .replace(/\[([^\]]+)\]/g, ':$1') // replace [name] with :name
+    .replace(/\/@/g, '/'); // replace /@ with / (for forcing components folder)
   return path;
 }
 
 export default class Server {
-  app = fastify({});
+  app = fastify({ignoreTrailingSlash: true});
   loaded = false;
 
   async load(dir, config) {
@@ -65,10 +68,17 @@ export default class Server {
 
   registerTemplateHandler(module, route = '/') {
     route = normalizeRoute(route);
-    this.app.get(route, (req, reply) => {
+    console.log(route)
+    function render(req, reply) {
       const {default: template} = module;
-      const {params, query, body} = req;
-      reply.marko(template, {params, query, body});
-    });
+      const {params, query, body, url, routerPath} = req;
+      reply.marko(template, {params, query, url, routerPath, body});
+    }
+    // Not entirely sure how to fix this with fastify but navigating to /route and /route/ 
+    // are apparently two different things even when ignoreTrailingSlash is true.
+    if(route.endsWith('/*') && route.length > 2) {
+      this.app.get(route.replace(/\/\*$/, ''), render);
+    }
+    this.app.get(route, render);
   }
 }

@@ -1,3 +1,4 @@
+// Clones a starter project directory from a git repository
 const degit = require('degit');
 
 const TEMPLATE_REPO = 'Khauri/Makro-kit';

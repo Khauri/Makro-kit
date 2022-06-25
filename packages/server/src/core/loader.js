@@ -38,7 +38,9 @@ async function registerDirectory(dir, rootDir, server) {
     .map(candidate => ({
       type: candidate.name.endsWith('.marko') ? 'marko' : 'js',
       path: path.join(dir, candidate.name),
-      filename: path.basename(path.join(dir, candidate.name)).split('.').shift(),
+      filename: path  
+        .basename(path.join(dir, candidate.name))
+        .replace(/\.((m?j|t)s|(ts\.)?marko)$/, ''),
     }));
   markIndex(dir, candidates);
   await Promise.all(

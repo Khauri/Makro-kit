@@ -1,0 +1,42 @@
+<!-- This is a server-rendered component. Do not directly add state here or it will be a bad time -->
+
+static const loadPage = async (page) => {
+  if(!page || page === '/') {
+    page = 'index';
+  }
+  const res = await import(`./${page}.md`)
+  return res;
+}
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+  }
+  .sidebar {
+    width: 200px;
+  }
+  .content {
+    flex: 1;
+  }
+</style>
+
+<div.page>
+  <div.sidebar>
+    Makro Kit
+  </div>
+  <article.content>
+    $ const pagePath = input.url.replace(input.routerPath.replace(/\/\*$/, ''), '');
+    <await(loadPage(pagePath))>
+      <@then|{html}|>
+        $!{html}
+      </@then>
+      <@catch>
+        <h1>404</h1>
+        <p>Page not found</p>
+      </@catch>
+    </await>
+  </article>
+</div>
