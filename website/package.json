@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "makro ."
+    "dev": "polo ."
   },
   "keywords": [],
   "author": "",
@@ -15,7 +15,7 @@
     "node": "16.15.0"
   },
   "devDependencies": {
-    "makro-kit": "1.0.0"
+    "@polojs/serve": "1.0.0"
   },
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",

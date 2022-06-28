@@ -1,9 +1,9 @@
 {
-  "name": "makro-kit",
+  "name": "@polojs/serve",
   "description": "Sample app that demonstrates the power of building UI components using Marko, Vite and Fastify",
   "version": "1.0.0",
   "bin": {
-    "makro": "./bin/index.js"
+    "polo": "./bin/index.js"
   },
   "dependencies": {
     "@marko/compiler": "^5.21.1",

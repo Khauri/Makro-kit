@@ -2,7 +2,7 @@
 const degit = require('degit');
 
 const TEMPLATE_REPO = 'Khauri/Makro-kit';
-const TEMPLATE_BASE_PATH = 'website';
+const TEMPLATE_BASE_PATH = 'examples/default';
 
 const emitter = degit(`${TEMPLATE_REPO}/${TEMPLATE_BASE_PATH}`, {force: true});
 

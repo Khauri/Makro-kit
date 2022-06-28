@@ -1,0 +1,17 @@
+{
+  "name": "polo-example-default",
+  "version": "1.0.0",
+  "description": "Default polojs starter project",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha",
+    "dev": "polo ."
+  },
+  "dependencies": {
+    "@marko/tags-api-preview": "^0.5.3"
+  },
+  "devDependencies": {
+    "@polojs/serve": "^1"
+  }
+}

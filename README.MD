@@ -2,23 +2,28 @@ WARNING:
 
 I give no guarantees that this will work on your machine. See the Development section for some known issues and workarounds.
 
-# Makro-kit
+# Polo.js
 
-Yes: `Makro-kit` and not `Marko-kit`. This package is meant to complement my WIP UI project [mikro](https://github.com/Khauri/mikro-ui).
+Polo JS is a zero-config [Marko](https://markojs.com/) meta framework with a super fast dev environment powered by vite and a file-system based router powered by fastify. 
 
-Makro-kit is an experimental file-system based router based loosely on `svelekit`, `n[e/u]xtjs`, `remix`, and `@marko/serve`.
+Other goodies include:
+  - SCSS Support (planned)
+  - Skypack/ESM URL import support (planned)
+  - [Snapshot testing](https://github.com/Khauri/mikro-ui/tree/master/packages/mikro-test) (planned)
+  - Edge Worker support. (planned)
+  - Route splitting. (planned)
+  - Built-in components: transitions, stores, etc. (planned)
+  - A11y auditing
+  - 
 
-Uses:
-  - marko
-  - vite
-  - fastify
+## Documentation
 
-This is still in very early stages but the end goal is a complete, zero-config, production ready server by running a single command.
+The documentation website is itself created using polo.
 
 ## Routes
 
 Like many file-system based routers, the directory structure of the project maps nearly 1:1 with the routing layout of the server.
-Currently all pages and endpoints go into a `routes` folder at the root of the project. This can be configured through command line arguments or by providing a `makroconfig.json`.
+Currently all pages and endpoints go into a `routes` folder at the root of the project. This can be configured through command line arguments or by providing a `poloconfig.json`.
 
 ### Endpoints
 
@@ -113,7 +118,6 @@ Then `cd website` and `yarn dev` to start the server.
 ### Known Development Issues
 
 The development goal is to create a documentation website (located in the `website` folder) that would help to bootstrap some features of the server.
-Makro (`packages/server`) is intended to be a cli script that can be used to host any folder even if that folder 
 
 However, currently all `node_modules` need to be hoisted into a single `node_modules` directory in order for vite to properly resolve the dependencies for reasons that I have not figured out yet, so it doesn't exactly work as expected in all cases.
 

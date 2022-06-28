@@ -23,7 +23,7 @@ export async function dev(dir) {
       base: '/',
       strictPort: true,
       middlewareMode: "ssr",
-      ...config.viteConfig.server,
+      ...config.viteConfig?.server,
       // fs: {
       //   allow: [
       //     path.join(__dirname),
@@ -34,7 +34,7 @@ export async function dev(dir) {
       // },
     },
     build: {
-      ...config.viteConfig.build,
+      ...config.viteConfig?.build,
       outDir: "dist", // Server and client builds should output assets to the same folder.
       emptyOutDir: false, // Avoid server / client deleting files from each other.
       rollupOptions: {

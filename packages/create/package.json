@@ -1,6 +1,6 @@
 {
-  "name": "makro-init",
-  "version": "1.0.0",
+  "name": "@polojs/create",
+  "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
