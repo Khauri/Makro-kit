@@ -1,6 +1,6 @@
 {
   "name": "@polojs/serve",
-  "description": "Sample app that demonstrates the power of building UI components using Marko, Vite and Fastify",
+  "description": "Serve Marko applications with an opinion",
   "version": "1.0.0",
   "bin": {
     "polo": "./bin/index.js"
@@ -21,9 +21,7 @@
   },
   "private": true,
   "scripts": {
-    "build": "rimraf dist && npm run build:server && npm run build:client",
-    "build:client": "cross-env NODE_ENV=production vite build",
-    "build:server": "cross-env NODE_ENV=production vite build --ssr src/index.js",
+    "build": "rimraf dist",
     "dev": "node --enable-source-maps index.js",
     "dev:inspect": "node --inspect --enable-source-maps index.js",
     "start": "cross-env NODE_ENV=production node --enable-source-maps index.js"
