@@ -3,6 +3,7 @@ import zlib from "zlib";
 import path from "node:path";
 
 import {setupDirectory} from './loader.js';
+import { closestFile } from '../utils/index.js';
 
 function normalizeRoute(path) {
   path = path
@@ -41,7 +42,7 @@ export default class Server {
     return this;
   }
 
-  registerJSHandler(module, route = '/') {
+  async registerJSHandler(module, route = '/') {
     route = normalizeRoute(route);
     const routes = ['get', 'post', 'patch', 'put', 'del', 'options', 'head', 'all'];
     
@@ -66,19 +67,86 @@ export default class Server {
     });
   }
 
-  registerTemplateHandler(module, route = '/') {
+  async registerTemplateHandler(markoTemplate, route = '/', file) {
     route = normalizeRoute(route);
-    console.log(route)
-    function render(req, reply) {
-      const {default: template} = module;
-      const {params, query, body, url, routerPath} = req;
-      reply.marko(template, {params, query, url, routerPath, body});
+    let layoutTemplate;
+    let errorTemplate;
+    let fallbackTemplate;
+    // TODO: End at root directory lmao
+    const layoutTemplatePath = await closestFile('_layout.marko', file);
+    const errorTemplatePath = await closestFile('_error.marko', file);
+    const fallbackTemplatePath = await closestFile('_fallback.marko', file);
+
+    if(layoutTemplatePath) {
+      layoutTemplate = (await import(layoutTemplatePath)).default;
     }
-    // Not entirely sure how to fix this with fastify but navigating to /route and /route/ 
-    // are apparently two different things even when ignoreTrailingSlash is true.
-    if(route.endsWith('/*') && route.length > 2) {
-      this.app.get(route.replace(/\/\*$/, ''), render);
+    if(errorTemplatePath) {
+      errorTemplate = (await import(errorTemplatePath)).default;
     }
-    this.app.get(route, render);
+
+    if(fallbackTemplatePath) {
+      fallbackTemplate = (await import(fallbackTemplatePath)).default;
+    }
+
+    this.app.register((instance, options, done) => {
+      function render(req, reply) {
+        const {default: template, match} = markoTemplate;
+        if(typeof match === 'function' && !match()) {
+          reply.callNotFound();
+          return;
+        }
+        const {params, query, body, url, routerPath} = req;
+        reply.marko(
+          layoutTemplate ? layoutTemplate : template, 
+          {
+            params,
+            query,
+            url,
+            routerPath,
+            body,
+            renderBody: layoutTemplate ? template : null,
+          }
+        );
+      }
+      // Not entirely sure how to fix this with fastify but navigating to /route and /route/ 
+      // are apparently two different things even when ignoreTrailingSlash is true.
+      if(route.endsWith('/*') && route.length > 2) {
+        instance.get(route.replace(/\/\*$/, ''), render);
+      }
+      instance.get(route, render);
+      if(fallbackTemplate) {
+        instance.setNotFoundHandler(function (req, reply) {
+          const {params, query, body, url, routerPath} = req;
+          reply.marko(
+            fallbackTemplate, 
+            {
+              params,
+              query,
+              url,
+              routerPath,
+              body,
+            }
+          );
+        });
+      }
+      if(errorTemplate) {
+        instance.setErrorHandler(function (error, req, reply) {
+          // Handle not found request without preValidation and preHandler hooks
+          // to URLs that begin with '/v1'
+          const {params, query, body, url, routerPath} = req;
+          reply.marko(
+            errorTemplate, 
+            {
+              params,
+              query,
+              url,
+              routerPath,
+              body,
+            }
+          );
+        });
+      }
+      done();
+    }, {prefix: route});
   }
 }

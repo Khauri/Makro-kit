@@ -34,7 +34,7 @@ async function registerDirectory(dir, rootDir, server) {
   const files = await fs.promises.readdir(dir, {withFileTypes: true});
   const directories = files.filter(f => f.isDirectory() && f.name !== 'components');
   const candidates = files
-    .filter(f => f.isFile() && /.((m?j|t)s|marko)$/.test(f.name))
+    .filter(f => f.isFile() && /.((m?j|t)s|marko)$/.test(f.name) && !/^[_.]/.test(f.name))
     .map(candidate => ({
       type: candidate.name.endsWith('.marko') ? 'marko' : 'js',
       path: path.join(dir, candidate.name),
@@ -52,9 +52,9 @@ async function registerDirectory(dir, rootDir, server) {
         ? `/${path.relative(rootDir, dir)}`
         : `/${path.relative(rootDir, dir)}/${candidate.filename}`;
       if(candidate.type === 'js') {
-        server.registerJSHandler(module, routePath);
+        await server.registerJSHandler(module, routePath, candidate.path);
       } else {
-        server.registerTemplateHandler(module, routePath);
+        await server.registerTemplateHandler(module, routePath, candidate.path);
       }
   
     })
