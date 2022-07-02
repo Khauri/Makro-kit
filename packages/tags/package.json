@@ -1,0 +1,10 @@
+{
+  "name": "@polojs/tags",
+  "version": "1.0.0",
+  "description": "Core tags for polojs",
+  "main": "index.js",
+  "license": "MIT",
+  "peerDependencies": {
+    "@marko/tags-api-preview": "^0.5.3"
+  }
+}

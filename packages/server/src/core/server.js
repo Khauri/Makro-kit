@@ -96,6 +96,7 @@ export default class Server {
           return;
         }
         const {params, query, body, url, routerPath} = req;
+        reply.locals.slots = {root: template};
         reply.marko(
           layoutTemplate ? layoutTemplate : template, 
           {

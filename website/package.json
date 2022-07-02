@@ -15,10 +15,11 @@
     "node": "16.15.0"
   },
   "devDependencies": {
-    "@polojs/serve": "1.0.0"
+    "@polojs/serve": "^1"
   },
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",
+    "@polojs/tags": "^1",
     "vite-plugin-markdown": "^2.0.2"
   }
 }

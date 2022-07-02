@@ -9,7 +9,8 @@
     "dev": "polo ."
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.5.3"
+    "@marko/tags-api-preview": "^0.5.3",
+    "@polojs/tags": "^1"
   },
   "devDependencies": {
     "@polojs/serve": "^1"

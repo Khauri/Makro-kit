@@ -1,0 +1,4 @@
+{
+    "taglib-id": "@polojs/tags",
+    "tagsDir": "./components"
+}
