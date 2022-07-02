@@ -17,10 +17,10 @@ export default class Server {
   app = fastify({ignoreTrailingSlash: true});
   loaded = false;
 
-  async load(dir, config) {
+  async init(dir, config) {
     if(this.loaded) return this;
     const {app} =  this;
-    app.register(await import("@marko/fastify"));
+    app.register(import("@marko/fastify"));
     // TODO: Grab this value from the config
     if (process.env.NODE_ENV === "production") {
       app.register(import("fastify-compress"), {
@@ -33,7 +33,7 @@ export default class Server {
       });
     
       app.register(import("fastify-static"), {
-        root: path.resolve("dist/assets"),
+        root: path.resolve("dist/assets"), // TODO: Make this root relative
         prefix: "/assets",
       });
     }
@@ -109,12 +109,7 @@ export default class Server {
           }
         );
       }
-      // Not entirely sure how to fix this with fastify but navigating to /route and /route/ 
-      // are apparently two different things even when ignoreTrailingSlash is true.
-      if(route.endsWith('/*') && route.length > 2) {
-        instance.get(route.replace(/\/\*$/, ''), render);
-      }
-      instance.get(route, render);
+      instance.get('/', render);
       if(fallbackTemplate) {
         instance.setNotFoundHandler(function (req, reply) {
           const {params, query, body, url, routerPath} = req;
@@ -148,6 +143,18 @@ export default class Server {
         });
       }
       done();
-    }, {prefix: route});
+    }, {prefix: route.endsWith('/*') ? route.replace(/\/\*$/, '*') : route});
+  }
+
+  listen({port = 3000} = {}) {
+    return this.app.listen({port});
+  }
+
+  ready() {
+    return this.app.ready();
+  }
+
+  handle(req, res) {
+    return this.app.routing(req, res);
   }
 }

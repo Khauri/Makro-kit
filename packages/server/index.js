@@ -22,7 +22,7 @@ export async function dev(dir) {
       port: config.port ?? PORT,
       base: '/',
       strictPort: true,
-      middlewareMode: "ssr",
+      middlewareMode: 'ssr',
       ...config.viteConfig?.server,
       // fs: {
       //   allow: [
@@ -55,15 +55,15 @@ export async function dev(dir) {
     },
     root,
   });
-  const server = devServer.middlewares
+  const server = devServer
+    .middlewares
     .use(async (req, res, next) => {
       try {
         const {server} = await devServer.ssrLoadModule(path.resolve(__dirname, './src/index.js'));
-        // console.log(server);
-        await server.load(dir);
-        await server.app.ready();
-        server.app.routing(req, res);
-        // next();
+        await server.init(dir);
+        // console.log(await server.ready());
+        await server.ready();
+        await server.handle(req, res);
       } catch (err) {
         return next(err);
       }
@@ -78,8 +78,8 @@ export async function dev(dir) {
 
 export async function serve() {
   // In production, simply start up the fastify server.
-  // const { app } = await import("./dist/index.js");
-  const address = await app.listen(PORT);
+  const { server } = await import("./dist/index.js");
+  const address = await server.listen({port: PORT});
   console.log(`Env: ${NODE_ENV}`);
   console.log(`Address: ${address}`);
 }
