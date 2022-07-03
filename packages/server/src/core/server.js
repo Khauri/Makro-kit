@@ -89,11 +89,14 @@ export default class Server {
     }
 
     this.app.register((instance, options, done) => {
-      function render(req, reply) {
-        const {default: template, match} = markoTemplate;
+      async function render(req, reply) {
+        const {default: template, match, load} = markoTemplate;
         if(typeof match === 'function' && !match()) {
           reply.callNotFound();
           return;
+        }
+        if(typeof load === 'function') {
+          reply.locals._data = await load();
         }
         const {params, query, body, url, routerPath} = req;
         reply.locals.slots = {root: template};
@@ -129,6 +132,7 @@ export default class Server {
         instance.setErrorHandler(function (error, req, reply) {
           // Handle not found request without preValidation and preHandler hooks
           // to URLs that begin with '/v1'
+          console.error(error); // TODO: Replace this with whatever logger is set up
           const {params, query, body, url, routerPath} = req;
           reply.marko(
             errorTemplate, 

@@ -1,6 +1,13 @@
 export function match(p) {
   return true;
 }
-<let/counter=0 />
+
+export function load() {
+  return 10;
+}
+
+<!-- <load/{value} /> -->
+
+<let/counter=value />
 <div>${counter}</div>
 <button onClick(){counter = counter+1;}>Click</button>

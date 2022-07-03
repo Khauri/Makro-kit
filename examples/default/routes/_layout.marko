@@ -1,10 +1,10 @@
-$ const {renderBody} = input;
+$ const {renderBody, ...rest} = input;
 
 <!doctype html>
 <html lang="en">
   <head></head>
   <body>
     <div>No JS = No Refresh</div>
-    <slot />
+    <slot ...rest />
   </body>
 </html>
