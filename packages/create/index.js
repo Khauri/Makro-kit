@@ -25,6 +25,6 @@ program.version('0.0.1')
 			process.exit(1);
 		}
 		console.log(`Creating project at ${resolvedPath}`);
-		await emitter.clone(path);
+		await emitter.clone(resolvedPath);
 	})
 	.parse(process.argv);
