@@ -97,6 +97,7 @@ export default class Server {
         }
         if(typeof load === 'function') {
           reply.locals._data = await load();
+          reply.locals.serializedGlobals._data = true;
         }
         const {params, query, body, url, routerPath} = req;
         reply.locals.slots = {root: template};
@@ -111,6 +112,7 @@ export default class Server {
             renderBody: layoutTemplate ? template : null,
           }
         );
+        return reply;
       }
       instance.get('/', render);
       if(fallbackTemplate) {
@@ -131,7 +133,6 @@ export default class Server {
       if(errorTemplate) {
         instance.setErrorHandler(function (error, req, reply) {
           // Handle not found request without preValidation and preHandler hooks
-          // to URLs that begin with '/v1'
           console.error(error); // TODO: Replace this with whatever logger is set up
           const {params, query, body, url, routerPath} = req;
           reply.marko(
