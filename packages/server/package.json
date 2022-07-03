@@ -1,7 +1,10 @@
 {
   "name": "@polojs/serve",
   "description": "Serve Marko applications with an opinion",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "polo": "./bin/index.js"
   },
@@ -19,7 +22,6 @@
     "cross-env": "^7.0.3",
     "rimraf": "^3.0.2"
   },
-  "private": true,
   "scripts": {
     "build": "rimraf dist",
     "dev": "node --enable-source-maps index.js",

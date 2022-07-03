@@ -132,3 +132,25 @@ Editing markdown files doesn't seem to trigger a page reload.
 Currently this works well for MPAs but maybe with some clever routing tricks this may be able to support a hybrid SSR/MPA app.
 
 Currently there is no way to create a build/bundle.
+
+## Development
+
+### Publishing
+
+1. Add a changeset and bump the appropriate packages
+
+```sh
+yarn changeset
+```
+
+2. Update package versions
+
+```sh
+yarn changeset version
+```
+
+3. Publish to NPM
+
+```sh
+yarn changeset publish
+```

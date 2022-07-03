@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // Clones a starter project directory from a git repository
 const degit = require('degit');
 const path = require('path');

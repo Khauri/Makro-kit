@@ -1,6 +1,9 @@
 {
   "name": "@polojs/tags",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "publishConfig": {
+    "access": "public"
+  },
   "description": "Core tags for polojs",
   "main": "index.js",
   "license": "MIT",

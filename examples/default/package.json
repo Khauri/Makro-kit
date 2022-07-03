@@ -4,6 +4,7 @@
   "description": "Default polojs starter project",
   "main": "index.js",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "test": "mocha",
     "dev": "polo ."
