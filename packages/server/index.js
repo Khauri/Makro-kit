@@ -54,6 +54,7 @@ export async function dev(dir) {
       },
     },
     root,
+    optimizeDeps: {include: ['fastify', 'fastify-plugin']}
   });
   const server = devServer
     .middlewares
