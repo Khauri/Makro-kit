@@ -1,13 +1,24 @@
-export function match(p) {
-  return true;
-}
+static let serverValue = 0;
 
 export function load() {
-  return 10;
+  // Load a value from the server
+  return serverValue;
+}
+
+export function increment() {
+  // Save a value to the server
+  serverValue += 1;
+  return serverValue;
 }
 
 <load/{value} />
+<functions/fns />
 
 <let/counter=value />
-<div>${counter}</div>
-<button onClick(){counter = counter+1;}>Click</button>
+
+<button onClick(){
+  let _counter = counter = counter + 1;
+  fns.increment().then(a => {counter = a});
+}>
+  This button has been clicked ${counter} times since the server started.
+</button>

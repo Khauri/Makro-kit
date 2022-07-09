@@ -1,0 +1,24 @@
+<get/global />
+<match/{actionsUrl} />
+
+<!-- TODO: Support debouncing and other stuff -->
+<const/action=(async (fnName, ...args) => {
+  const response = await fetch(actionsUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({name: fnName, args}),
+  });
+  return await response.json();
+}) />
+
+<const/fns = (() => {
+  const fnSlot = 'root'; // Hardcoded for now because the <set> tag isn't behaving properly
+  return global._fns?.[fnSlot]?.reduce((acc, slot) => {
+    acc[slot] = action.bind(null, slot);
+    return acc;
+  }, {});
+})() />
+
+<return=fns />

@@ -16,6 +16,11 @@ function normalizeRoute(path) {
 export default class Server {
   app = fastify({ignoreTrailingSlash: true});
   loaded = false;
+  imports = {};
+
+  config({imports} = {}) {
+    this.imports = imports;
+  }
 
   async init(dir, config) {
     if(this.loaded) return this;
@@ -69,7 +74,8 @@ export default class Server {
 
   async registerTemplateHandler(markoTemplate, route = '/', file) {
     route = normalizeRoute(route);
-    let layoutTemplate;
+    let rootTemplate = markoTemplate;
+    let slots = {};
     let errorTemplate;
     let fallbackTemplate;
     // TODO: End at root directory lmao
@@ -77,8 +83,10 @@ export default class Server {
     const errorTemplatePath = await closestFile('_error.marko', file);
     const fallbackTemplatePath = await closestFile('_fallback.marko', file);
 
+    // For now only one template is loaded but thinking of refactoring to support multiple nested templates
     if(layoutTemplatePath) {
-      layoutTemplate = (await import(layoutTemplatePath)).default;
+      rootTemplate = (await import(layoutTemplatePath)).default;
+      slots.root = this.imports[file];
     }
     if(errorTemplatePath) {
       errorTemplate = (await import(errorTemplatePath)).default;
@@ -97,24 +105,40 @@ export default class Server {
         }
         if(typeof load === 'function') {
           reply.locals._data = await load();
-          reply.locals.serializedGlobals._data = true;
         }
         const {params, query, body, url, routerPath} = req;
-        reply.locals.slots = {root: template};
+        reply.locals.slots = slots;
+        reply.locals._fns = {};
+        reply.locals._meta = {
+          actionsUrl: routerPath, // may modify this later
+          params,
+          query,
+          url,
+          routerPath,
+        }
+        reply.locals.serializedGlobals._fns = true;
+        reply.locals.serializedGlobals._meta = true;
+        reply.locals.serializedGlobals._data = true;
         reply.marko(
-          layoutTemplate ? layoutTemplate : template, 
+          rootTemplate, 
           {
-            params,
-            query,
-            url,
-            routerPath,
             body,
-            renderBody: layoutTemplate ? template : null,
           }
         );
         return reply;
       }
-      instance.get('/', render);
+
+      instance
+        .get('/', render)
+        .post('/', async (req, reply) => {
+          const {body: {name, args = []} = {}} = req;
+          const fn = markoTemplate[name];
+          if(typeof fn !== 'function') {
+            return null;
+          }
+          return fn(...args) ?? null;
+        });
+      
       if(fallbackTemplate) {
         instance.setNotFoundHandler(function (req, reply) {
           const {params, query, body, url, routerPath} = req;

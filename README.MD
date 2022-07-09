@@ -96,10 +96,6 @@ Example:
 
 This will result in a route of `/items/:id/components/:component_id`
 
-#### layouts
-
-Unlike in sveltekit, layouts are not automatically inferred from the filestystem. Instead you should create a components folder and put the layout there.
-
 ### Mixing Templates and Endpoints
 
 Templates and endpoints may occupy the same route with one caveat:

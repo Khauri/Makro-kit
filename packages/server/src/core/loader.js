@@ -86,6 +86,8 @@ export async function setupDirectory(dir, server) {
     return acc;
   }, {});
 
+  server.config({imports});
+
   const routesDir = path.join(absDir, "routes");
   // Walk the directory tree
   await walk(routesDir, routesDir, server);

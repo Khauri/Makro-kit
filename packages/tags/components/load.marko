@@ -1,11 +1,18 @@
 <get/global />
+
+<let/isLoading = false />
+<let/isFetching = false />
+
+<const/isRefetching = false />
+<const/isError = false />
+
 <return={
   value: global._data,
   // Planned Stuff:
   // fetch,
-  // isLoading,
-  // isFetching,
-  // isRefetching,
-  // isError,
+  isLoading,
+  isFetching,
+  isRefetching,
+  isError,
   // subscribe,
 } />
