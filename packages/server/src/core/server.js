@@ -74,7 +74,7 @@ export default class Server {
 
   async registerTemplateHandler(markoTemplate, route = '/', file) {
     route = normalizeRoute(route);
-    let rootTemplate = markoTemplate;
+    let rootTemplate = markoTemplate?.default;
     let slots = {};
     let errorTemplate;
     let fallbackTemplate;
@@ -85,20 +85,21 @@ export default class Server {
 
     // For now only one template is loaded but thinking of refactoring to support multiple nested templates
     if(layoutTemplatePath) {
-      rootTemplate = (await import(layoutTemplatePath)).default;
+      rootTemplate = (await this.imports[layoutTemplatePath]()).default;
       slots.root = this.imports[file];
     }
+    
     if(errorTemplatePath) {
-      errorTemplate = (await import(errorTemplatePath)).default;
+      errorTemplate = (await this.imports[errorTemplatePath]()).default;
     }
 
     if(fallbackTemplatePath) {
-      fallbackTemplate = (await import(fallbackTemplatePath)).default;
+      fallbackTemplate = (await this.imports[fallbackTemplatePath]()).default;
     }
 
     this.app.register((instance, options, done) => {
       async function render(req, reply) {
-        const {default: template, match, load} = markoTemplate;
+        const {match, load} = markoTemplate;
         if(typeof match === 'function' && !match()) {
           reply.callNotFound();
           return;
