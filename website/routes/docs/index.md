@@ -1,6 +1,6 @@
 # Docs
 
-This page contains documentation on Makro, a Marko meta framework.
+This page contains documentation on PolloJS, a Marko meta framework.
 
 ## Quick Start
 
@@ -10,4 +10,4 @@ cd new-project
 npm run dev
 ```
 
-[Next Page](./routes)
+[Next Page](./docs/routes)

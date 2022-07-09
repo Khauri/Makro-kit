@@ -1,14 +1,37 @@
-<!-- This is a server-rendered component. Do not directly add state here or it will be a bad time -->
+import 'highlight.js/styles/github.css';
 
-static const loadPage = async (page) => {
-  if(!page || page === '/') {
-    page = 'index';
+export async function load({params: {'*': path} = {}} = {}) {
+  const hljs = await import('highlight.js');
+  const {marked} = await import('marked');
+  const fs = await import('node:fs');
+  const np = await import('node:path');
+  const url = await import('node:url');
+  // Load the appropriate markdown file for the page
+  // const files = import.meta.glob('./*.md');
+  if(!path) {
+    path = '/index';
   }
-  const res = await import(`./${page}.md`)
-  return res;
+
+  const mdPath = `.${path}.md`
+  const absPath = np.resolve(url.fileURLToPath(np.dirname(import.meta.url)), mdPath);
+  const file = await fs.promises.readFile(absPath);
+
+  marked.setOptions({
+    highlight: function (code, language) {
+      return hljs.highlight(code, { language }).value;
+    },
+  });
+
+  return {
+    html: marked(file.toString()),
+    // toc: result.toc
+  };
 }
 
 <style>
+  body {
+    margin: 0;
+  }
   .page {
     display: flex;
     flex-direction: row;
@@ -21,22 +44,34 @@ static const loadPage = async (page) => {
   .content {
     flex: 1;
   }
+  article {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  pre {
+    box-sizing: border-box;
+    overflow-x: auto;
+    width: 100%;
+    margin-top: 1.27rem;
+    border-radius: 6px;
+    line-height: 1.5;
+    background-color: #fafafa;
+  }
+  pre > code {
+    display: block;
+    padding: 1.2rem!important;
+  }
 </style>
+
+<load/{value: {html, toc}} />
 
 <div.page>
   <div.sidebar>
     Pollo JS
   </div>
-  <article.content>
-    $ const pagePath = input.url.replace(input.routerPath.replace(/\/\*$/, ''), '');
-    <await(loadPage(pagePath))>
-      <@then|{html}|>
-        $!{html}
-      </@then>
-      <@catch>
-        <h1>404</h1>
-        <p>Page not found</p>
-      </@catch>
-    </await>
-  </article>
+  <div.content>
+    <article>
+      $!{html}
+    </article>
+  </div>
 </div>

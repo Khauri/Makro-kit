@@ -21,6 +21,8 @@
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",
     "@polojs/tags": "^1",
+    "highlight.js": "^11.5.1",
+    "marked": "^4.0.17",
     "vite-plugin-markdown": "^2.0.2"
   }
 }

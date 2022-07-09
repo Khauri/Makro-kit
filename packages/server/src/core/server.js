@@ -100,13 +100,6 @@ export default class Server {
     this.app.register((instance, options, done) => {
       async function render(req, reply) {
         const {match, load} = markoTemplate;
-        if(typeof match === 'function' && !match()) {
-          reply.callNotFound();
-          return;
-        }
-        if(typeof load === 'function') {
-          reply.locals._data = await load();
-        }
         const {params, query, body, url, routerPath} = req;
         reply.locals.slots = slots;
         reply.locals._fns = {};
@@ -120,6 +113,13 @@ export default class Server {
         reply.locals.serializedGlobals._fns = true;
         reply.locals.serializedGlobals._meta = true;
         reply.locals.serializedGlobals._data = true;
+        if(typeof match === 'function' && !match()) {
+          reply.callNotFound();
+          return;
+        }
+        if(typeof load === 'function') {
+          reply.locals._data = await load.call({req, reply}, reply.locals._meta);
+        }
         reply.marko(
           rootTemplate, 
           {
