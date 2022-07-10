@@ -1,13 +1,14 @@
 {
-  "name": "polo-example-default",
+  "name": "markdown-blog",
   "version": "1.0.0",
-  "description": "Default polojs starter project",
   "main": "index.js",
   "private": true,
+  "type": "module",
   "scripts": {
     "test": "mocha",
     "dev": "polo dev .",
-    "build": "polo build"
+    "build": "polo build .",
+    "start": "polo serve"
   },
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",

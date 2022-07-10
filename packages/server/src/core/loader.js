@@ -1,9 +1,8 @@
 // Loads the modules into a tree
 import path from 'node:path';
-import fs from 'node:fs';
+// import fs from 'node:fs';
+import {fs, vol} from 'memfs';
 import {dirname} from '../utils/index.js';
-
-const __dirname = dirname(import.meta.url);
 
 let imports;
 
@@ -72,20 +71,28 @@ async function walk(dir, root = dir, server) {
 }
 
 export async function setupDirectory(dir, server) {
+  const dirPath = dirname(import.meta.url);
   const absDir = path.resolve(dir);
   // ~ should refer to the passed in directory. This is configured via vite config and `createServer`.
   // Used because only static imports and aliases (~) are allowed here. Works fine but may need to be improved.
   // May or may not change it to another alias a `~` is sometimes aliased to 'node_modules'.
-  // Also should probably make this lazy instead of eager?
   const paths = import.meta.glob('~/**/*.{mjs,js,ts,marko}');
-
+  
   // Make each path absolute for lookup later
   imports = Object.entries(paths).reduce((acc, [key, value]) => {
-    key = path.resolve(__dirname, key);
+    key = path.resolve(dirPath, key);
     acc[key] = value;
     return acc;
   }, {});
 
+  // This sets up a virtual filesystem which is useful for the final build
+  const virtualFS = Object.keys(paths).reduce((acc, key) => {
+    fs.mkdirSync(path.dirname(key), {recursive: true});
+    key = path.resolve(dirPath, key);
+    acc[key] = 'module.exports = "virtual module"';
+    return acc;
+  }, {});
+  vol.fromJSON(virtualFS, dirPath);
   server.config({imports});
 
   const routesDir = path.join(absDir, "routes");

@@ -7,7 +7,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "polo ."
+    "dev": "polo dev .",
+    "build": "polo build .",
+    "start": "polo serve"
   },
   "keywords": [],
   "author": "",
