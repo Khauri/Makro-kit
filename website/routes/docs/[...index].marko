@@ -1,4 +1,16 @@
+import './md.css';
 import 'highlight.js/styles/github.css';
+
+static const pages = [
+  {
+    name: 'Home',
+    path: '/',
+  },
+  {
+    name: 'Routes',
+    path: '/routes',
+  }
+];
 
 export async function load({params: {'*': path} = {}} = {}) {
   const hljs = await import('highlight.js');
@@ -6,8 +18,8 @@ export async function load({params: {'*': path} = {}} = {}) {
   const fs = await import('node:fs');
   const np = await import('node:path');
   const url = await import('node:url');
+  const files = import.meta.glob('./*.md'); // Not used currently. May switch this to use a file loader
   // Load the appropriate markdown file for the page
-  // const files = import.meta.glob('./*.md');
   if(!path) {
     path = '/index';
   }
@@ -24,6 +36,7 @@ export async function load({params: {'*': path} = {}} = {}) {
 
   return {
     html: marked(file.toString()),
+    page: null,
     // toc: result.toc
   };
 }
@@ -34,44 +47,66 @@ export async function load({params: {'*': path} = {}} = {}) {
   }
   .page {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     width: 100vw;
     height: 100vh;
   }
+  .navbar {
+    position: sticky;
+    top: 0;
+    padding: 20px 10px;
+    border-bottom: 1px solid #ccc;
+    flex: 0;
+  }
+  .main {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    height: 100%;
+  }
   .sidebar {
-    width: 200px;
+    width: 300px;
+    box-sizing: content-box;
+    position: sticky;
+    top: 0;
+    overflow-y: scroll;
+  }
+  .sidebar-links {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
   }
   .content {
     flex: 1;
+    height: 100%;
+    overflow: auto;
   }
   article {
     max-width: 720px;
-    margin: 0 auto;
-  }
-  pre {
-    box-sizing: border-box;
-    overflow-x: auto;
-    width: 100%;
-    margin-top: 1.27rem;
-    border-radius: 6px;
-    line-height: 1.5;
-    background-color: #fafafa;
-  }
-  pre > code {
-    display: block;
-    padding: 1.2rem!important;
+    overflow-y: auto;
   }
 </style>
 
 <load/{value: {html, toc}} />
 
 <div.page>
-  <div.sidebar>
-    Pollo JS
-  </div>
-  <div.content>
-    <article>
-      $!{html}
-    </article>
+  <header.navbar>
+    <a href="/">Pollo JS</a>
+  </header>
+  <div.main>
+    <aside.sidebar>
+      <ul.sidebar-links>
+        <for|page| of=pages>
+          <li>
+            <a href=`/docs${page.path}`>${page.name}</a>
+          </li>
+        </for>
+      </ul>
+    </aside>
+    <div.content>
+      <article.md>
+        $!{html}
+      </article>
+    </div>
   </div>
 </div>
