@@ -14,6 +14,7 @@ const {
 async function getViteConfig({root, ssr = undefined}) {
   const config = await getConfig(root);
   // const root = vite.searchForWorkspaceRoot(dir);
+  /** @type {import('vite').InlineConfig} */
   return {
     // ...config,
     ...config.viteConfig,
@@ -47,7 +48,7 @@ async function getViteConfig({root, ssr = undefined}) {
       },
     },
     root,
-    optimizeDeps: {include: ['fastify', 'fastify-plugin']}
+    optimizeDeps: {include: ['fastify', 'fastify-plugin']},
   };
 }
 
@@ -89,9 +90,10 @@ export async function build(dir, options) {
   await build(await getViteConfig({root: dir}));
 }
 
-export async function serve(file) {
+export async function serve(file, {root} = {}) {
+  process.env.SERVE = 'true';
   const { server } = await import(file);
-  await server.init();
+  await server.init(root);
   const address = await server.listen({port: PORT});
   console.log(`Env: ${NODE_ENV}`);
   console.log(`Address: ${address}`);

@@ -30,6 +30,7 @@ program.command('serve')
   .alias('s')
   .argument('[file]', 'Path to the file containing the built project. Defaults to ./dist directory.', './dist/index.js')
   .option('-p, --port <port>', 'Port to use for the server. Will use process.env.PORT if not specified')
+  .option('-r, --root <path>', 'Path to the directory to serve. Defaults to the current directory.', path.resolve(process.cwd(), './routes'))
   .action((dir, options) => {
     const absDir = path.resolve(dir);
     controller.serve(absDir, options); 

@@ -71,8 +71,7 @@ async function walk(dir, root = dir, server) {
 }
 
 export async function setupDirectory(dir, server) {
-  const dirPath = dirname(import.meta.url);
-  const absDir = path.resolve(dir);
+  const rootDir = path.resolve(dir);
   // ~ should refer to the passed in directory. This is configured via vite config and `createServer`.
   // Used because only static imports and aliases (~) are allowed here. Works fine but may need to be improved.
   // May or may not change it to another alias a `~` is sometimes aliased to 'node_modules'.
@@ -80,22 +79,30 @@ export async function setupDirectory(dir, server) {
   
   // Make each path absolute for lookup later
   imports = Object.entries(paths).reduce((acc, [key, value]) => {
-    key = path.resolve(dirPath, key);
-    acc[key] = value;
+    // Get path relative to rootDir
+    // HACK ALERT: not sure how to fix this but for some reason extra path segments are needed when serving...
+    const newKey = process.env.SERVE ? path.resolve(rootDir, 'node_modules', key) : path.resolve(rootDir, 'node_modules', 'routes', key);
+    acc[newKey] = value;
     return acc;
   }, {});
 
   // This sets up a virtual filesystem which is useful for the final build
-  const virtualFS = Object.keys(paths).reduce((acc, key) => {
+  const virtualFS = Object.keys(imports).reduce((acc, key) => {
     fs.mkdirSync(path.dirname(key), {recursive: true});
-    key = path.resolve(dirPath, key);
     acc[key] = 'module.exports = "virtual module"';
     return acc;
   }, {});
-  vol.fromJSON(virtualFS, dirPath);
+  vol.fromJSON(virtualFS, rootDir);
+  // console.log(virtualFS, vol.toJSON());
   server.config({imports});
 
-  const routesDir = path.join(absDir, "routes");
+  let routesDir = rootDir;
+  // If not in the routes direcory, go to routes 
+  if(fs.existsSync(path.join(rootDir, 'routes'))) {
+    routesDir = path.join(rootDir, "routes");
+  }
+  fs.mkdirSync(routesDir, {recursive: true});
+  console.log(routesDir);
   // Walk the directory tree
   await walk(routesDir, routesDir, server);
 }
