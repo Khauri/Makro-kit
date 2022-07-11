@@ -70,19 +70,21 @@ async function walk(dir, root = dir, server) {
   }));
 }
 
-export async function setupDirectory(dir, server) {
-  const rootDir = path.resolve(dir);
-  // ~ should refer to the passed in directory. This is configured via vite config and `createServer`.
-  // Used because only static imports and aliases (~) are allowed here. Works fine but may need to be improved.
+export async function setupDirectory(server, config) {
+  const routesDir = path.resolve(config.rootDir, config.routesDir);
+  fs.mkdirSync(routesDir, {recursive: true});
+  // ~ refers to config.rootDir. This is configured through the vite config and gets replaced statically during builds.
+  // Used because only static imports and aliases (~) are allowed here.
   // May or may not change it to another alias a `~` is sometimes aliased to 'node_modules'.
   const paths = import.meta.glob('~/**/*.{mjs,js,ts,marko}');
   
   // Make each path absolute for lookup later
   imports = Object.entries(paths).reduce((acc, [key, value]) => {
-    // Get path relative to rootDir
-    // HACK ALERT: not sure how to fix this but for some reason extra path segments are needed when serving...
-    const newKey = process.env.SERVE ? path.resolve(rootDir, 'node_modules', key) : path.resolve(rootDir, 'node_modules', 'routes', key);
-    acc[newKey] = value;
+    // This is super scuffed, but import.meta.url doesn't seem to work? Kind of a pain in the ass right now...
+    key = `${key.replace(/^(\.\.\/)+/, '')}`; // remove leading relative path
+    key = `${routesDir.slice(0, routesDir.indexOf(key.split(/(\/[^\/]+)/).at(1)))}/${key.split(/(\/.+)/).at(1)}`;
+    key = path.resolve(routesDir, key);
+    acc[key] = value;
     return acc;
   }, {});
 
@@ -92,17 +94,9 @@ export async function setupDirectory(dir, server) {
     acc[key] = 'module.exports = "virtual module"';
     return acc;
   }, {});
-  vol.fromJSON(virtualFS, rootDir);
+  vol.fromJSON(virtualFS, config.rootDir);
   // console.log(virtualFS, vol.toJSON());
   server.config({imports});
-
-  let routesDir = rootDir;
-  // If not in the routes direcory, go to routes 
-  if(fs.existsSync(path.join(rootDir, 'routes'))) {
-    routesDir = path.join(rootDir, "routes");
-  }
-  fs.mkdirSync(routesDir, {recursive: true});
-  console.log(routesDir);
   // Walk the directory tree
   await walk(routesDir, routesDir, server);
 }

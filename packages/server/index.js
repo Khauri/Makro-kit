@@ -11,11 +11,11 @@ const {
   PORT = 3000
 } = process.env;
 
-async function getViteConfig({root, ssr = undefined}) {
-  const config = await getConfig(root);
-  // const root = vite.searchForWorkspaceRoot(dir);
+async function getConfigs({root, ...rest}) {
+  // TODO: const root = searchForWorkspaceRoot(root);
+  const config = await getConfig(root, {rootDir: root, ...rest});
   /** @type {import('vite').InlineConfig} */
-  return {
+  const viteConfig = {
     // ...config,
     ...config.viteConfig,
     plugins: [marko(), ...config.viteConfig?.plugins ?? []],
@@ -29,41 +29,36 @@ async function getViteConfig({root, ssr = undefined}) {
     },
     build: {
       ...config.viteConfig?.build,
-      ssr,
-      outDir: "dist", // Server and client builds should output assets to the same folder.
-      emptyOutDir: false, // Avoid server / client deleting files from each other.
+      outDir: config.outDir,
+      emptyOutDir: false,
       rollupOptions: {
-        output: {
-          // Output ESM for the server build also.
-          // Remove when https://github.com/vitejs/vite/issues/2152 is resolved.
-          format: "es",
-        },
-        // Vite dependency crawler needs an explicit JS entry point
+        output: {format: "es"},
         input: path.resolve(__dirname, './src/index.js'),
       },
 		},
     resolve: {
       alias: {
-        '~': root,
+        '~': config.rootDir,
       },
     },
-    root,
+    root: config.rootDir,
     optimizeDeps: {include: ['fastify', 'fastify-plugin']},
   };
+  return {viteConfig, poloConfig: config};
 }
 
-export async function dev(dir) {
+export async function dev(dir, options) {
   const { once } = await import('events');
   const { createServer } = await import('vite');
-  const devServerConfig = await getViteConfig({root: dir});
+  const {viteConfig, poloConfig} = await getConfigs({...options, root: dir});
   // const root = vite.searchForWorkspaceRoot(dir);
-  const devServer = await createServer(devServerConfig);
+  const devServer = await createServer(viteConfig);
   const server = devServer
     .middlewares
     .use(async (req, res, next) => {
       try {
         const {server} = await devServer.ssrLoadModule(path.resolve(__dirname, './src/index.js'));
-        await server.init(dir);
+        await server.init(poloConfig);
         await server.ready();
         await server.handle(req, res);
       } catch (err) {
@@ -81,19 +76,31 @@ export async function dev(dir) {
 export async function build(dir, options) {
   const {build} = await import('vite');
   const {default: rimraf} = await import('rimraf');
+  const {poloConfig, viteConfig} = await getConfigs({root: dir, ...options});
   await new Promise((res, rej) => {
-    rimraf('./dist', (err) => {err ? rej(err) : res()});
+    const outputDir = path.resolve(poloConfig.rootDir, poloConfig.outDir);
+    rimraf(outputDir, (err) => {err ? rej(err) : res()});
   });
   // Server build
-  await build(await getViteConfig({root: dir, ssr: true}));
-  // Client build
-  await build(await getViteConfig({root: dir}));
+  await build({...viteConfig, build: {...viteConfig.build, ssr: true}});
+  // // Client build
+  await build(viteConfig);
+
 }
 
-export async function serve(file, {root} = {}) {
+export async function serve(dir, options) {
   process.env.SERVE = 'true';
-  const { server } = await import(file);
-  await server.init(root);
+  const {poloConfig} = await getConfigs({...options, root: dir});
+  const file = path.resolve(poloConfig.rootDir, poloConfig.outDir, 'index.js');
+  let server;
+  try {
+    ({ server } = await import(file));
+  } catch(err) {
+    console.error(`\nOops! Something went wrong loading the built bundle from "${file}".\n\tDid you forget to run polo build?\n`);
+    process.exit(1);
+  }
+  // console.log(poloConfig, file);
+  await server.init(poloConfig);
   const address = await server.listen({port: PORT});
   console.log(`Env: ${NODE_ENV}`);
   console.log(`Address: ${address}`);

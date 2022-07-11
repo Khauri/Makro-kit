@@ -10,16 +10,18 @@ program
   .alias('d')
   .argument('[dir]', 'Path to the directory containing the project. Defaults to the current directory.', process.cwd())
   .option('-p, --port <port>', 'Port to use for the server. Defaults to 3000', 3000)
-  .action((dir) => {
+  .option('-d, --routesDir <path>', 'Override the default path to the routes directory.')
+  .action((dir, options) => {
     const absDir = path.resolve(dir);
-    controller.dev(absDir);
+    controller.dev(absDir, options);
   });
 
 // Build Command
 program.command('build')
   .alias('b')
   .argument('[dir]', 'Path to the directory containing the project. Defaults to the current directory.', process.cwd())
-  .option('-o, --output <path>', 'Path to the directory to output the built project. Defaults to ./dist', './dist')
+  .option('-o, --outDir <path>', 'Path to the directory to output the built project. Defaults to ./dist', './dist')
+  .option('-d, --routesDir <path>', 'Override the default path to the routes directory.')
   .action((dir, options) => {
     const absDir = path.resolve(dir);
     controller.build(absDir, options);
@@ -28,9 +30,9 @@ program.command('build')
 // Serve command
 program.command('serve')
   .alias('s')
-  .argument('[file]', 'Path to the file containing the built project. Defaults to ./dist directory.', './dist/index.js')
+  .argument('[dir]', 'Path to the directory containing the project. Defaults to the current directory.', process.cwd())
   .option('-p, --port <port>', 'Port to use for the server. Will use process.env.PORT if not specified')
-  .option('-r, --root <path>', 'Path to the directory to serve. Defaults to the current directory.', path.resolve(process.cwd(), './routes'))
+  .option('-d, --routesDir <path>', 'Override the default path to the routes directory.')
   .action((dir, options) => {
     const absDir = path.resolve(dir);
     controller.serve(absDir, options); 

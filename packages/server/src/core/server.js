@@ -22,7 +22,7 @@ export default class Server {
     this.imports = imports;
   }
 
-  async init(dir, config) {
+  async init(config) {
     if(this.loaded) return this;
     const {app} =  this;
     app.register(import("@marko/fastify"));
@@ -42,7 +42,7 @@ export default class Server {
         prefix: "/assets",
       });
     }
-    await setupDirectory(dir, this);
+    await setupDirectory(this, config);
     this.loaded = true;
     return this;
   }

@@ -1,0 +1,44 @@
+import {parse, format} from 'date-fns';
+
+export async function load({params: {'*': path} = {}} = {}) {
+  const hljs = await import('highlight.js');
+  const {marked} = await import('marked');
+  const fs = await import('node:fs');
+  const np = await import('node:path');
+  const url = await import('node:url');
+
+  // Articles could also be loaded from a database
+  const globbed = import.meta.glob('../../articles/*.md',  {as: 'raw'});
+
+  const articles = Object.entries(globbed).map(([key, value]) => ({
+    key, 
+    name: key.split('/').pop().replace('.md', ''), 
+    content: value,
+    title: key.split('/').pop().replace('.md', '').replace(/^(\d{4})-(\d{2})-(\d{2})-+/, '').replace(/-+/g, ' '),
+  }));
+
+  const article = articles.find(({name}) => name === path.slice(1));
+  
+  const dateString = article.name.replace(/^(\d{4})-(\d{2})-(\d{2}).*/, '$1-$2-$3');
+  const date = parse(dateString, 'yyyy-MM-dd', new Date());
+
+  marked.setOptions({
+    highlight: function (code, language) {
+      return hljs.highlight(code, { language }).value;
+    },
+  });
+
+  return {
+    html: marked(article.content.toString()),
+    title: article.title,
+    date,
+    // toc: result.toc
+  };
+}
+
+<load/{value} />
+
+h1
+  -- ${value.title}
+-- Published: ${format(value.date, 'MMMM dd, yyyy')}
+-- $!{value.html}

@@ -5,10 +5,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-function Str({values, pattern, required} = {}) {
+function Str({values, pattern, default: defaultValue, required} = {}) {
   return {
     type: 'string',
     required,
+    resolve: (input) => typeof input === 'undefined' ? defaultValue : input,
     validate: (input) => typeof input === 'string',
   };
 }
@@ -73,7 +74,7 @@ function Arr({of, max, min} = {}) {
   }
 }
 
-function Obj(properties = {}, {allowAdditional = false} = {}) {
+function Obj(properties = {}, {allowAdditional = false, name = '$'} = {}) {
   return {
     type: 'object',
     validate: (input) => {
@@ -83,7 +84,7 @@ function Obj(properties = {}, {allowAdditional = false} = {}) {
       // TODO: Check that all the properties match the schema
       return true;
     },
-    resolve: (input, p) => {
+    resolve: (input, p = name) => {
       // TODO: Handle additional properties
       const handled = Object.entries(properties).reduce((acc, [key, prop]) => {
         const part = p ? `${p}.${key}` : key;
@@ -93,7 +94,7 @@ function Obj(properties = {}, {allowAdditional = false} = {}) {
             return new Error(`${part} is required to be defined in the config`);
           }
         }
-        acc[key] = typeof val === 'undefined' ? val : prop.resolve?.(val, part) ?? val;
+        acc[key] = prop.resolve?.(val, part) ?? val;
         return acc;
       }, {});
       const additional = Object.keys(input).reduce((acc, key) => {
@@ -103,7 +104,10 @@ function Obj(properties = {}, {allowAdditional = false} = {}) {
         return acc;
       }, {});
       if(!allowAdditional && Object.keys(additional).length > 0) {
-        return new Error(`Additional properties are not allowed for property ${p}`);
+        const isSingular = Object.keys(additional).length === 1;
+        const propertyNoun = isSingular ? 'property' : 'properties';
+        const stateVerb = isSingular ? 'is' : 'are';
+        return new Error(`Additional ${propertyNoun} ${Object.keys(additional).map(a => `"${a}"`).join(', ')} ${stateVerb} not allowed in ${p}`);
       }
       return {...handled, ...additional};
     }
@@ -112,18 +116,20 @@ function Obj(properties = {}, {allowAdditional = false} = {}) {
 
 // Base configuration
 export const config = Obj({
-  dir: Str(),
-  mode: Str({values: ['development', 'production']}),
+  mode: Str({values: ['development', 'production'], default: 'development'}),
+  outDir: Str({default: './dist'}),
   routePrefix: Str(),
-  routesDir: Str(),
+  rootDir: Str(),
+  routesDir: Str({default: './routes'}),
   viteConfig: Any(Obj({}, {allowAdditional: true}), Str()),
-});
+  port: Any(Num(), Str()),
+}, {name: 'poloConfig'});
 
 // Walks upwards from the cwd to find a markoconfig.js
 export function findConfigFile(from = process.cwd()) {
   let last = from;
   do {
-    const config = `${last}/.makroconfig.js`;
+    const config = `${last}/polo.js`;
     if(fs.existsSync(config)){
       return config;
     }
@@ -133,16 +139,14 @@ export function findConfigFile(from = process.cwd()) {
 }
 
 // Reads the config file
-export async function getConfigFile(from) {
+export async function getConfigFile(from, inlineConfigOptions = {}) {
   const configPath = findConfigFile(from);
-  if(!configPath) {
-    return {};
-  }
-  const result = await import(configPath);
-  return result.default ?? result;
+  const result = configPath ? await import(configPath) : {};
+  // Merge inline config with config file. Inline takes precedence.
+  return {...result.default ?? result, ...inlineConfigOptions};
 }
 
-export async function getConfig(from) {
-  const userConf = await getConfigFile(from);
+export async function getConfig(from, inlineConfigOptions = {}) {
+  const userConf = await getConfigFile(from, inlineConfigOptions);
   return config.resolve(userConf);
 }
