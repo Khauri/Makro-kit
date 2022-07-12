@@ -1,0 +1,30 @@
+<!-- Live data view. Subscribe to a channel using websockets -->
+import WebSocket from 'ws';
+static const cache = {};
+
+<id/liveId />
+<attrs/{default: channel, onOpen, onMessage, onClose, disabled, host = '/'} />
+
+<let/isConnected = false />
+<const/data = null />
+
+<lifecycle
+  onMount() {
+    cache[liveId] = this;
+    this.ws = new WebSocket(host);
+    this.ws.on('open', onOpen);
+    this.ws.on('message', (msg) => console.log(msg));
+  }
+  onUpdate() {
+
+  }
+  onDestroy() {
+
+  }
+/>
+
+<return={
+  send(...data) {
+    cache[liveId].ws.send(data);
+  },
+} />

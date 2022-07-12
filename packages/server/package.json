@@ -21,7 +21,8 @@
     "marko": "^5.21.1",
     "memfs": "^3.4.7",
     "rimraf": "^3.0.2",
-    "vite": "^2.9.8"
+    "vite": "^2.9.8",
+    "ws": "^8.8.0"
   },
   "scripts": {
     "build": "rimraf dist",
