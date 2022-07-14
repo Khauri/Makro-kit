@@ -1,31 +1,21 @@
+<!-- Reference: https://github.com/TanStack/query/blob/beta/packages/react-query/src/useMutation.ts -->
 import {MutationObserver} from 'react-query/core';
 
 <attrs/{
   default: mutationFn,
   mutationKey,
-  onSuccess
+  ...rest
 } />
 
 <query-client/client />
 
-<let/getObserver = () => null />
-<let/mutationState = {} />
+<let/observer = (() => {
+  const mutationObserver = new MutationObserver(client(), {mutationFn, mutationKey, ...rest});
+  return () => mutationObserver;
+})() />
 
-<lifecycle
-  onMount() {
-    const observer = new MutationObserver(client(), {mutationFn, mutationKey, onSuccess});
-    this.unsubscribe = observer.subscribe((result) => {
-      mutationState = result;
-    });
-    getObserver = () => observer;
-  }
-  onDestroy() {
-    this.unsubscribe();
-  }
+<let/mutationState = observer().currentResult />
 
-/>
+<effect = () => observer().subscribe((state) => {mutationState = state}) />
 
-<return={
-  ...mutationState,
-  mutate(...args){getObserver().mutate(...args)}
-} />
+<return=mutationState />

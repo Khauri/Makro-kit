@@ -57,3 +57,9 @@ The `<query-client-config>` tag allows you to configure a query client and pass 
 ### query client
 
 The `<query-client>` returns a function that returns an instance of QueryClient. This is useful for performing actions such as invalidating queries.
+
+## TODO
+
+- External query cache sync
+- Marko 5 support?
+- The rest of the react-query api (ie InfiniteQuery, isFetching, isMutating, isRestoring, etc)

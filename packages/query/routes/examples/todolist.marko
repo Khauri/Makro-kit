@@ -2,7 +2,7 @@ import { getTodos, postTodo } from './_api'
 
 <query-client-config>
   <query-client/queryClient />
-  <query/query=getTodos keys=['todos']  />
+  <query/query=getTodos queryKey=['todos']  />
   <mutation/mutation=postTodo onSuccess(){queryClient().invalidateQueries(['todos'])}/>
 
   <div>

@@ -13,10 +13,10 @@ export function getClient(id, {client = null, config} = {}, getDefaultIfNotExist
   return clients[id] ?? clients.default;
 }
 
-<attrs/{default: config, client, renderBody} />
+<attrs/{default: config, client, renderBody, ...rest} />
 
 <id/clientId />
 
-<set=getClient.bind(null, clientId, {client, config}, false)>
+<set=getClient.bind(null, clientId, {client, config: {...config, ...rest}}, false)>
   <${renderBody} />
 </set>

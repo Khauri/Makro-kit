@@ -1,50 +1,25 @@
+<!-- Reference: https://github.com/TanStack/query/blob/beta/packages/react-query/src/useQuery.ts -->
+
 import {QueryObserver} from 'react-query/core';
 
 <attrs/{
+  queryKey,
   default: queryFn,
-  keys: queryKey,
-  initialData,
-  initialDataUpdatedAt,
+  ...rest
 } />
 
 <query-client/client />
 
-<let/queryState = {data: initialData, initialDataUpdatedAt} />
+<const/defaultedOptions = client().defaultQueryOptions({queryKey, queryFn, ...rest}) />
 
-<lifecycle 
-  onMount() {
-    const observer = new QueryObserver(client(), {queryKey, queryFn})
+<let/observer = (() => {
+  const queryClient = client();
+  const queryObserver = new QueryObserver(queryClient, defaultedOptions);
+  return () => queryObserver;
+})() />
 
-    this.unsubscribe = observer.subscribe(result => {
-      queryState = result;
-    });
-  }
-  onDestroy() {
-    this.unsubscribe();
-  } 
-/>
+<let/queryState = observer().getOptimisticResult({queryKey, queryFn, ...rest}) />
 
-<return={
-  ...queryState,
-  // dataUpdatedAt,
-  // error,
-  // errorUpdatedAt,
-  // failureCount,
-  // isError,
-  // isFetched,
-  // isFetchedAfterMount,
-  // isFetching,
-  // isPaused,
-  // isLoading,
-  // isLoadingError,
-  // isPlaceholderData,
-  // isPreviousData,
-  // isRefetchError,
-  // isRefetching,
-  // isStale,
-  // isSuccess,
-  // refetch,
-  // remove,
-  // status,
-  // fetchStatus,
-} />
+<effect = () => observer().subscribe(state => { queryState = state }) />
+
+<return=queryState />
