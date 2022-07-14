@@ -80,10 +80,14 @@ export async function setupDirectory(server, config) {
   
   // Make each path absolute for lookup later
   imports = Object.entries(paths).reduce((acc, [key, value]) => {
-    // This is super scuffed, but import.meta.url doesn't seem to work? Kind of a pain in the ass right now...
-    key = `${key.replace(/^(\.\.\/)+/, '')}`; // remove leading relative path
-    key = `${routesDir.slice(0, routesDir.indexOf(key.split(/(\/[^\/]+)/).at(1)))}/${key.split(/(\/.+)/).at(1)}`;
-    key = path.resolve(routesDir, key);
+    if(import.meta.url) {
+      key = path.resolve(dirname(import.meta.url), key);
+    } else {
+      // This is super scuffed, but import.meta.url doesn't seem to work in builds? Kind of a pain in the ass right now...
+      key = `${key.replace(/^(\.\.\/)+/, '')}`; // remove leading relative path
+      key = `${routesDir.slice(0, routesDir.indexOf(key.split(/(\/[^\/]+)/).at(1)))}/${key.split(/(\/.+)/).at(1)}`;
+      key = path.resolve(routesDir, key);
+    }
     acc[key] = value;
     return acc;
   }, {});

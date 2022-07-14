@@ -1,5 +1,11 @@
 # @polojs/serve
 
+## 1.0.6
+
+### Patch Changes
+
+- fix url resolving issue at least for dev
+
 ## 1.0.5
 
 ### Patch Changes
