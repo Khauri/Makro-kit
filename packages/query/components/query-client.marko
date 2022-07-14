@@ -1,0 +1,5 @@
+import {getClient} from '<query-client-config>';
+
+<get/getter = 'query-client-config' />
+<id/queryClientId />
+<return = getter ?? getClient.bind(null, queryClientId) />

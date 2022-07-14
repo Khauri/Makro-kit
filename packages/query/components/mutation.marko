@@ -1,0 +1,31 @@
+import {MutationObserver} from 'react-query';
+
+<attrs/{
+  default: mutationFn,
+  mutationKey,
+  onSuccess
+} />
+
+<query-client/client />
+
+<let/getObserver = () => null />
+<let/mutationState = {} />
+
+<lifecycle
+  onMount() {
+    const observer = new MutationObserver(client(), {mutationFn, mutationKey, onSuccess});
+    this.unsubscribe = observer.subscribe((result) => {
+      mutationState = result;
+    });
+    getObserver = () => observer;
+  }
+  onDestroy() {
+    this.unsubscribe();
+  }
+
+/>
+
+<return={
+  ...mutationState,
+  mutate(...args){getObserver().mutate(...args)}
+} />

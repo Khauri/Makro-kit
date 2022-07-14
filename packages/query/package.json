@@ -1,0 +1,24 @@
+{
+  "name": "@polojs/query",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "@tanstack/query port for Marko",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "polo dev ."
+  },
+  "dependencies": {
+    "react-query": "4.0.0-beta.23",
+    "react-dom": "18.2.0",
+    "react": "18.2.0"
+  },
+  "devDependencies": {
+    "@polojs/serve": "^1"
+  },
+  "peerDependencies": {
+    "@marko/tags-api-preview": "^0.5.3"
+  }
+}

@@ -1,0 +1,50 @@
+import {QueryObserver} from 'react-query';
+
+<attrs/{
+  default: queryFn,
+  keys: queryKey,
+  initialData,
+  initialDataUpdatedAt,
+} />
+
+<query-client/client />
+
+<let/queryState = {data: initialData, initialDataUpdatedAt} />
+
+<lifecycle 
+  onMount() {
+    const observer = new QueryObserver(client(), {queryKey, queryFn})
+
+    this.unsubscribe = observer.subscribe(result => {
+      queryState = result;
+    });
+  }
+  onDestroy() {
+    this.unsubscribe();
+  } 
+/>
+
+<return={
+  ...queryState,
+  // dataUpdatedAt,
+  // error,
+  // errorUpdatedAt,
+  // failureCount,
+  // isError,
+  // isFetched,
+  // isFetchedAfterMount,
+  // isFetching,
+  // isPaused,
+  // isLoading,
+  // isLoadingError,
+  // isPlaceholderData,
+  // isPreviousData,
+  // isRefetchError,
+  // isRefetching,
+  // isStale,
+  // isSuccess,
+  // refetch,
+  // remove,
+  // status,
+  // fetchStatus,
+} />

@@ -1,0 +1,28 @@
+import { getTodos, postTodo } from './_api'
+
+<query-client-config>
+  <query-client/queryClient />
+  <query/query=getTodos keys=['todos']  />
+  <mutation/mutation=postTodo onSuccess(){queryClient().invalidateQueries(['todos'])}/>
+
+  <div>
+    <ul>
+      <if=query.data>
+        <for|todo| of=query.data by=(todo => todo.id)>
+          <li>${todo.title}</li>
+        </for>
+      </if>
+    </ul>
+
+    <button
+      onClick=() => {
+        mutation.mutate({
+          id: Date.now(),
+          title: 'Do Laundry',
+        })
+      }
+    >
+      Add Todo
+    </button>
+  </div>
+</query-client-config>

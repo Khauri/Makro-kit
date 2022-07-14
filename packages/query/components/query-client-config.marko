@@ -1,0 +1,22 @@
+<!-- Create a new client -->
+import {QueryClient} from 'react-query';
+
+export const clients = {};
+
+export function getClient(id, {client = null, config} = {}, getDefaultIfNotExists = true) {
+  if(!clients.default) {
+    clients.default = new QueryClient();
+  }
+  if(!clients[id]) {
+    clients[id] = client?.() ?? new QueryClient(config);
+  }
+  return clients[id] ?? clients.default;
+}
+
+<attrs/{default: config, client, renderBody} />
+
+<id/clientId />
+
+<set=getClient.bind(null, clientId, {client, config}, false)>
+  <${renderBody} />
+</set>
