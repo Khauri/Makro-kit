@@ -16,7 +16,7 @@ export async function load({params: {'*': path} = {}} = {}) {
     content: value,
     title: key.split('/').pop().replace('.md', '').replace(/^(\d{4})-(\d{2})-(\d{2})-+/, '').replace(/-+/g, ' '),
   }));
-
+  
   const article = articles.find(({name}) => name === path.slice(1));
   
   const dateString = article.name.replace(/^(\d{4})-(\d{2})-(\d{2}).*/, '$1-$2-$3');
