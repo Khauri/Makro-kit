@@ -1,6 +1,6 @@
 {
   "name": "@polojs/query",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -14,7 +14,7 @@
     "react-query": "4.0.0-beta.23"
   },
   "devDependencies": {
-    "@polojs/serve": "^1"
+    "@polojs/serve": "^1.0.5"
   },
   "peerDependencies": {
     "@marko/tags-api-preview": "^0.5.3"
