@@ -2,9 +2,6 @@
 
 A query client using `@tanstack/react-query` (formally `react-query@4.0.0-beta.23`).
 
-⚠️ Currently this package relies on having react and react-dom installed because react-query uses it, however it's expected that this dependency will be removed as react-query becomes more framework independant.
-Since this package doesn't use anything that relies on react-dom or react it may be able to also remove them through tree shaking in production builds.
-
 ## Instructions
 
 In a nutshell you use the component like this:
