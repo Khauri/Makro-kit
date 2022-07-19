@@ -1,0 +1,10 @@
+{
+  "name": "@polojs/swagger-inline-plugin",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "swagger-inline": "^6.0.0"
+  }
+}

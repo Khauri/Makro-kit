@@ -1,0 +1,22 @@
+{
+  "name": "polo-example-social-media",
+  "version": "1.0.0",
+  "description": "Polojs social media-like starter project",
+  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "mocha",
+    "dev": "polo dev .",
+    "build": "polo build"
+  },
+  "dependencies": {
+    "@marko/tags-api-preview": "^0.5.3",
+    "@polojs/tags": "^1",
+    "@polojs/query": "^0",
+    "@polojs/swagger-inline-plugin": "^0"
+  },
+  "devDependencies": {
+    "@polojs/serve": "^1"
+  }
+}

@@ -22,7 +22,8 @@
     "memfs": "^3.4.7",
     "rimraf": "^3.0.2",
     "vite": "^2.9.8",
-    "ws": "^8.8.0"
+    "ws": "^8.8.0",
+    "zod": "^3.17.9"
   },
   "scripts": {
     "build": "rimraf dist",
