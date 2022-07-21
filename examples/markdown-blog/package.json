@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",
+    "@polojs/debug": "^0",
     "@polojs/tags": "^1",
     "date-fns": "^2.28.0",
     "highlight.js": "^11.5.1",

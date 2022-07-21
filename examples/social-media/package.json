@@ -12,9 +12,11 @@
   },
   "dependencies": {
     "@marko/tags-api-preview": "^0.5.3",
-    "@polojs/tags": "^1",
     "@polojs/query": "^0",
-    "@polojs/swagger-inline-plugin": "^0"
+    "@polojs/swagger-inline-plugin": "^0",
+    "@polojs/tags": "^1",
+    "superagent": "^8.0.0",
+    "zod": "^3.17.9"
   },
   "devDependencies": {
     "@polojs/serve": "^1"
