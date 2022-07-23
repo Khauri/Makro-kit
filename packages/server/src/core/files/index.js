@@ -10,3 +10,7 @@ export function addFiles(fileMap, root) {
   }, {});
   vol.fromJSON(virtualFS, root);
 }
+
+export function getTemplateStack(from) {
+
+}

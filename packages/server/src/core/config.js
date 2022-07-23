@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import z from 'zod';
 
+import {resolvePlugins} from './plugins/index.js';
+
 export const Modes = z.enum(['development', 'production']).default('development');
 
 export const Config = z.object({
@@ -12,7 +14,7 @@ export const Config = z.object({
   routesDir: z.string().default('./routes'),
   viteConfig: z.union([z.object({}).passthrough(), z.string()]).optional(),
   port: z.union([z.number(), z.string()]).default('3000'),
-  plugins: z.array().default([]),
+  plugins: z.array(z.any()).default([]),
 }).strict();
 
 // Walk upwards from the cwd to find a package.json
@@ -56,7 +58,7 @@ export async function resolveConfig(from, inlineConfigOptions = {}) {
     const dependencies = {...packageJSON.dependencies, ...packageJSON.devDependencies};
     const plugins = Object.keys(dependencies).filter(k => /polo-plugin-/.test(k));
     // Maybe merge this a little better in the future?
-    inlineConfigOptions.plugins = [...inlineConfigOptions.plugins ?? plugins, ...plugins];
+    inlineConfigOptions.plugins = await resolvePlugins([...inlineConfigOptions.plugins ?? [], ...plugins]);
   }
   // Merge inline config with config file. Inline takes precedence.
   return {...result.default ?? result, ...inlineConfigOptions};

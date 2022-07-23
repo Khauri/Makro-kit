@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 const tailwindConfigBase = `{
   content: [
     "./routes/**/*.marko",
@@ -18,7 +21,8 @@ const postCSSConfigBase = `{
 
 export default {
   name: 'polo-plugin-tailwind',
-  preBuild({root} = {}) {
+  preBuild(config = {}) {
+    const root = config.rootDir;
     const tailwindConfig = path.join(root, 'tailwind.config.cjs');
     if(!fs.existsSync(tailwindConfig)) {
       // create a default tailwind config

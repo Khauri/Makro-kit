@@ -11,6 +11,7 @@ const {
   PORT = 3000
 } = process.env;
 
+// This should most likely go in src/config?
 async function getConfigs({root, ...rest}) {
   // TODO: const root = searchForWorkspaceRoot(root);
   const config = await getConfig(root, {rootDir: root, ...rest});
@@ -44,6 +45,14 @@ async function getConfigs({root, ...rest}) {
     root: config.rootDir,
     optimizeDeps: {include: ['fastify', 'fastify-plugin']},
   };
+
+  // TODO: This should go in a far more logical place
+  const prebuilders = config.plugins
+    .filter(p => p.preBuild)
+    .map(({preBuild}) => {
+      return preBuild(config);;
+    });
+  await Promise.all(prebuilders);
   return {viteConfig, poloConfig: config};
 }
 

@@ -1,9 +1,6 @@
-import fastify from 'fastify';
-import zlib from "zlib";
-import path from "node:path";
-
 import {setupDirectory} from './loader.js';
 import {closestFile} from '../utils/index.js';
+import {EventEmitter} from 'events';
 
 function normalizeRoute(path) {
   path = path
@@ -13,12 +10,14 @@ function normalizeRoute(path) {
   return path;
 }
 
-export default class Server {
+export default class Server extends EventEmitter {
   adapter = null;
+  initializing = false;
   initialized = false;
   imports = {};
 
   constructor({adapter} = {}) {
+    super();
     this.adapter = adapter;
   }
 
@@ -27,11 +26,23 @@ export default class Server {
   }
 
   async init(config) {
-    if(this.initialized) return this;
-    this.initialized = true;
+    if(this.initialized) {
+      return this;
+    }
+    // If some requests are made before the server is ready then buffer them
+    if(this.initializing) {
+      return new Promise(resolve => {
+        this.once('ready', () => resolve(this));
+      });
+    }
+    this.initializing = true;
+
     await this.adapter?.init(config);
     await setupDirectory(this, config);
     await this.ready();
+
+    this.initialized = true;
+    this.initializing = false;
     return this;
   }
 
@@ -90,8 +101,9 @@ export default class Server {
     return this.adapter.listen(...args);
   }
 
-  ready(...args) {
-    return this.adapter.ready(...args);
+  async ready(...args) {
+    await this.adapter.ready?.(...args);
+    this.emit('ready');
   }
 
   // TODO: Move devServer stuff to the adapter

@@ -1,7 +1,7 @@
 {
-  "name": "polo-example-language-playground",
+  "name": "polo-example-nested-templates",
   "version": "1.0.0",
-  "description": "Polojs language playground starter project",
+  "description": "Polojs nested templates example",
   "main": "index.js",
   "private": true,
   "type": "module",
@@ -11,16 +11,11 @@
     "build": "polo build"
   },
   "dependencies": {
-    "@babel/parser": "^7.18.9",
-    "@babel/standalone": "^7.18.9",
     "@marko/tags-api-preview": "^0.5.3",
     "@polojs/query": "^0",
     "@polojs/tags": "^1",
-    "monaco-editor": "^0.33.0",
-    "prismjs": "^1.28.0"
   },
   "devDependencies": {
-    "@polojs/polo-plugin-tailwind": "^0",
-    "@polojs/serve": "^1"
+    "@polojs/serve": "^1",
   }
 }
