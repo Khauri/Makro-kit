@@ -1,26 +1,23 @@
 <!-- 
-  Used in nested routers. Grabs template from out.global.
-  The import itself has to take place inside of a marko component or otherise 
-  the wrong entry point will be used and case issues.
+  Used in nested routers. Grabs the appropriate template from out.global.
+  Templates themselves _cannot_ be stateful, but may contain stateful components in them.
 -->
-$ const {global} = out;
-$ const {name = 'root', ...rest} = input;
-$ const templateLoader = global.slots[name];
+$ {
+  const {global} = out;
+  const slot = global._stack.length;
+  const template = global._stack.shift();
+  if(!template) {
+    throw new Error('Too many slots were rendered without a matching template. Please use only one slot per template.')
+  }
+  // FIXME: This means the <functions> tag won't work unless you're using slots
+  if(!global._fns) {
+    global._fns = [];
+  }
+  global._fns.push(Object.keys(template.functions));
+}
 
-<await(templateLoader())>
-  <@then|template|>
-    $ {
-      if(!global._fns[name]) {
-        global._fns[name] = {};
-      }
-
-      global._fns[name] = Object.entries(template).reduce((acc, [key, value]) => {
-        if(typeof value === 'function') {
-          acc.push(key);
-        }
-        return acc;
-      }, []);
-    }
-    <${template} />
+<await(template.load())>
+  <@then|renderBody|>
+    <${renderBody} />
   </@then>
 </await>

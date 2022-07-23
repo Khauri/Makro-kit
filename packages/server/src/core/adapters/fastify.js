@@ -39,13 +39,15 @@ export class FastifyAdapter {
     this.app.register(route, ...handler);
   }
 
-  registerPage(page, route, {slots, markoTemplate, errorTemplate, fallbackTemplate} = {}) {
+  /**
+   * Registers a marko page template
+   * @param {import('../server').Page} page 
+   * @param {string} route 
+   */
+  registerPage(page, route) {
     this.app.register((instance, options, done) => {
-      async function render(req, reply) {
-        const {match, load} = markoTemplate;
+      function addSerializedData(req, reply) {
         const {params, query, url, routerPath} = req;
-        reply.locals.slots = slots;
-        reply.locals._fns = {};
         reply.locals._meta = {
           actionsUrl: routerPath, // may modify this later
           params,
@@ -56,58 +58,43 @@ export class FastifyAdapter {
         reply.locals.serializedGlobals._fns = true;
         reply.locals.serializedGlobals._meta = true;
         reply.locals.serializedGlobals._data = true;
-        if(typeof match === 'function' && !match()) {
+      }
+
+      async function render(req, reply) {
+        reply.locals._stack = page.stack;
+        const context = {req, reply};
+
+        addSerializedData(req, reply);
+
+        if(!(await page.match(context, reply.locals._meta))) {
           reply.callNotFound();
           return;
         }
-        if(typeof load === 'function') {
-          reply.locals._data = await load.call({req, reply}, reply.locals._meta);
-        }
-        reply.marko(page);
+        reply.locals._data = await page.getStaticData(context, reply.locals._meta);
+        reply.marko(await page.getRoot(), reply.locals._data);
         return reply;
       }
 
       instance
         .get('/', render)
-        .post('/', async (req) => {
+        // Handle page actions
+        .post('/', (req) => {
           const {body: {name, args = []} = {}} = req;
-          const fn = markoTemplate[name];
-          if(typeof fn !== 'function') {
-            return null;
-          }
-          return fn(...args) ?? null;
+          return page.function(name, args);
         });
       
-      if(fallbackTemplate) {
-        instance.setNotFoundHandler(function (req, reply) {
-          const {params, query, body, url, routerPath} = req;
-          reply.marko(
-            fallbackTemplate, 
-            {
-              params,
-              query,
-              url,
-              routerPath,
-              body,
-            }
-          );
+      if(page.hasFallbackTemplate()) {
+        instance.setNotFoundHandler(async function (req, reply) {
+          addSerializedData(req, reply);
+          reply.marko(await page.fallbackTemplate.load());
         });
       }
-      if(errorTemplate) {
-        instance.setErrorHandler(function (error, req, reply) {
+      if(page.hasErrorTemplate()) {
+        instance.setErrorHandler(async function (error, req, reply) {
           // Handle not found request without preValidation and preHandler hooks
           console.error(error); // TODO: Replace this with whatever logger is set up
-          const {params, query, body, url, routerPath} = req;
-          reply.marko(
-            errorTemplate, 
-            {
-              params,
-              query,
-              url,
-              routerPath,
-              body,
-            }
-          );
+          addSerializedData(req, reply);
+          reply.marko(await page.errorTemplate.load());
         });
       }
       done();
@@ -122,7 +109,7 @@ export class FastifyAdapter {
     return this.app.ready();
   }
 
-  // TODO: Move the devserver setup to the adapter as well
+  // TODO: Move the devServer setup to the adapter as well
   handle(...args) {
     return this.app.routing(...args);
   }

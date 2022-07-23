@@ -51,9 +51,9 @@ async function registerDirectory(dir, rootDir, server) {
         ? `/${path.relative(rootDir, dir)}`
         : `/${path.relative(rootDir, dir)}/${candidate.filename}`;
       if(candidate.type === 'js') {
-        await server.registerJSHandler(module, routePath, candidate.path);
+        await server.registerEndpoint(module, routePath, candidate.path);
       } else {
-        await server.registerTemplateHandler(module, routePath, candidate.path);
+        await server.registerPage(routePath, candidate.path);
       }
   
     })
