@@ -3,7 +3,7 @@ import zlib from "zlib";
 import path from "node:path";
 
 import {setupDirectory} from './loader.js';
-import { closestFile } from '../utils/index.js';
+import {closestFile} from '../utils/index.js';
 
 function normalizeRoute(path) {
   path = path
@@ -14,62 +14,48 @@ function normalizeRoute(path) {
 }
 
 export default class Server {
-  app = fastify({ignoreTrailingSlash: true});
-  loaded = false;
+  adapter = null;
+  initialized = false;
   imports = {};
+
+  constructor({adapter} = {}) {
+    this.adapter = adapter;
+  }
 
   config({imports} = {}) {
     this.imports = imports;
   }
 
   async init(config) {
-    if(this.loaded) return this;
-    const {app} =  this;
-    app.register(import("@marko/fastify"));
-    // TODO: Grab this value from the config
-    if (process.env.NODE_ENV === "production") {
-      app.register(import("fastify-compress"), {
-        zlibOptions: {
-          flush: zlib.constants.Z_SYNC_FLUSH,
-        },
-        brotliOptions: {
-          flush: zlib.constants.BROTLI_OPERATION_FLUSH,
-        },
-      });
-    
-      app.register(import("fastify-static"), {
-        root: path.resolve("dist/assets"), // TODO: Make this root relative
-        prefix: "/assets",
-      });
-    }
+    if(this.initialized) return this;
+    this.initialized = true;
+    await this.adapter?.init(config);
     await setupDirectory(this, config);
-    this.loaded = true;
+    await this.ready();
     return this;
   }
 
   async registerJSHandler(module, route = '/') {
     route = normalizeRoute(route);
-    const routes = ['get', 'post', 'patch', 'put', 'del', 'options', 'head', 'all'];
+    const routes = ['get', 'post', 'patch', 'put', 'del', 'delete', 'options', 'head', 'all'];
     
     // Default and register are treated as the same thing b/c haven't decided where to go with this yet
     let {default: handler, register = handler} = module;
     if(register) {
-      this.app.register(handler, {prefix: route});
+      this.adapter.register?.({handler, prefix: route});
     }
-    
-    routes.forEach(method => {
-      if(!module[method]) {
-        return;
-      }
-      let handler = module[method];
-      if(!Array.isArray(handler)) {
-        handler = [handler];
-      }
-      if(module[`${method}Options`]) {
-        handler.unshift(module[`${method}Options`]);
-      }
-      this.app[method === 'del' ? 'delete' : method](route, ...handler);
-    });
+
+    routes
+      .filter(method => module[method])
+      .forEach(method => {
+        let options = {};
+        let handler = module[method];
+        if(module[`${method}Options`]) {
+          options = module[`${method}Options`];
+        }
+        method = method === 'del' ? 'delete' : method;
+        this.adapter.registerRoute?.(route, method, handler, options);
+      });
   }
 
   async registerTemplateHandler(markoTemplate, route = '/', file) {
@@ -97,94 +83,19 @@ export default class Server {
       fallbackTemplate = (await this.imports[fallbackTemplatePath]()).default;
     }
 
-    this.app.register((instance, options, done) => {
-      async function render(req, reply) {
-        const {match, load} = markoTemplate;
-        const {params, query, body, url, routerPath} = req;
-        reply.locals.slots = slots;
-        reply.locals._fns = {};
-        reply.locals._meta = {
-          actionsUrl: routerPath, // may modify this later
-          params,
-          query,
-          url,
-          routerPath,
-        }
-        reply.locals.serializedGlobals._fns = true;
-        reply.locals.serializedGlobals._meta = true;
-        reply.locals.serializedGlobals._data = true;
-        if(typeof match === 'function' && !match()) {
-          reply.callNotFound();
-          return;
-        }
-        if(typeof load === 'function') {
-          reply.locals._data = await load.call({req, reply}, reply.locals._meta);
-        }
-        reply.marko(
-          rootTemplate, 
-          {
-            body,
-          }
-        );
-        return reply;
-      }
-
-      instance
-        .get('/', render)
-        .post('/', async (req, reply) => {
-          const {body: {name, args = []} = {}} = req;
-          const fn = markoTemplate[name];
-          if(typeof fn !== 'function') {
-            return null;
-          }
-          return fn(...args) ?? null;
-        });
-      
-      if(fallbackTemplate) {
-        instance.setNotFoundHandler(function (req, reply) {
-          const {params, query, body, url, routerPath} = req;
-          reply.marko(
-            fallbackTemplate, 
-            {
-              params,
-              query,
-              url,
-              routerPath,
-              body,
-            }
-          );
-        });
-      }
-      if(errorTemplate) {
-        instance.setErrorHandler(function (error, req, reply) {
-          // Handle not found request without preValidation and preHandler hooks
-          console.error(error); // TODO: Replace this with whatever logger is set up
-          const {params, query, body, url, routerPath} = req;
-          reply.marko(
-            errorTemplate, 
-            {
-              params,
-              query,
-              url,
-              routerPath,
-              body,
-            }
-          );
-        });
-      }
-      done();
-    }, {prefix: route.endsWith('/*') ? route.replace(/\/\*$/, '*') : route});
+    this.adapter.registerPage(rootTemplate, route, {slots, markoTemplate, errorTemplate, fallbackTemplate});
   }
 
-  listen({port = 3000} = {}) {
-    return this.app.listen({port});
+  listen(...args) {
+    return this.adapter.listen(...args);
   }
 
-  ready() {
-    return this.app.ready();
+  ready(...args) {
+    return this.adapter.ready(...args);
   }
 
-  handle(req, res) {
-    return this.app.routing(req, res);
+  // TODO: Move devServer stuff to the adapter
+  handle(...args) {
+    return this.adapter.handle(...args);
   }
 }

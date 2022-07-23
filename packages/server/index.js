@@ -59,7 +59,6 @@ export async function dev(dir, options) {
       try {
         const {server} = await devServer.ssrLoadModule(path.resolve(__dirname, './src/index.js'));
         await server.init(poloConfig);
-        await server.ready();
         await server.handle(req, res);
       } catch (err) {
         return next(err);
@@ -74,7 +73,7 @@ export async function dev(dir, options) {
 }
 
 export async function build(dir, options) {
-  const {build} = await import('vite');
+  const vite = await import('vite');
   const {default: rimraf} = await import('rimraf');
   const {poloConfig, viteConfig} = await getConfigs({root: dir, ...options});
   await new Promise((res, rej) => {
@@ -82,9 +81,9 @@ export async function build(dir, options) {
     rimraf(outputDir, (err) => {err ? rej(err) : res()});
   });
   // Server build
-  await build({...viteConfig, build: {...viteConfig.build, ssr: true}});
+  await vite.build({...viteConfig, build: {...viteConfig.build, ssr: true}});
   // // Client build
-  await build(viteConfig);
+  await vite.build(viteConfig);
 
 }
 

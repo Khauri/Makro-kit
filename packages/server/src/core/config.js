@@ -12,11 +12,23 @@ export const Config = z.object({
   routesDir: z.string().default('./routes'),
   viteConfig: z.union([z.object({}).passthrough(), z.string()]).optional(),
   port: z.union([z.number(), z.string()]).default('3000'),
+  plugins: z.array().default([]),
 }).strict();
 
-// Walks upwards from the cwd to find a markoconfig.js
+// Walk upwards from the cwd to find a package.json
+export function findPackageJSON(from = process.cwd()) {
+  do {
+    const packageJSON = path.join(from, 'package.json');
+    if(fs.existsSync(packageJSON)) {
+      const packageJSONContent = fs.readFileSync(packageJSON, 'utf8');
+      return JSON.parse(packageJSONContent);
+    }
+    from = path.dirname(from);
+  } while (from !== '/');
+}
+
+// Walks upwards from the cwd to find a polo config
 export function findConfigFile(from = process.cwd()) {
-  let last = from;
   const filetypes = [
     {type: 'ts', value: `polo.config.ts`},
     {type: 'esm', value: `polo.config.js`},
@@ -26,20 +38,26 @@ export function findConfigFile(from = process.cwd()) {
   ];
   do {
     for (const filetype of filetypes) {
-      const file = path.join(last, filetype.value);
+      const file = path.join(from, filetype.value);
       if(fs.existsSync(file)) {
         return file;
       }
     }
-    last = from;
-    from = path.resolve(from, '..');
-  } while (from !== last); // may or may not prevent an infinite loop
+    from = path.dirname(from);
+  } while (from !== '/');
 }
 
 // Reads the config file
 export async function resolveConfig(from, inlineConfigOptions = {}) {
   const configPath = findConfigFile(from);
+  const packageJSON = findPackageJSON(from);
   const result = configPath ? await import(configPath) : {};
+  if(packageJSON) {
+    const dependencies = {...packageJSON.dependencies, ...packageJSON.devDependencies};
+    const plugins = Object.keys(dependencies).filter(k => /polo-plugin-/.test(k));
+    // Maybe merge this a little better in the future?
+    inlineConfigOptions.plugins = [...inlineConfigOptions.plugins ?? plugins, ...plugins];
+  }
   // Merge inline config with config file. Inline takes precedence.
   return {...result.default ?? result, ...inlineConfigOptions};
 }
