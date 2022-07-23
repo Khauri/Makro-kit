@@ -1,0 +1,29 @@
+{
+  "name": "polo-example-language-playground",
+  "version": "1.0.0",
+  "description": "Polojs language playground starter project",
+  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "mocha",
+    "dev": "polo dev .",
+    "build": "polo build"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.18.9",
+    "@babel/standalone": "^7.18.9",
+    "@marko/tags-api-preview": "^0.5.3",
+    "@polojs/query": "^0",
+    "@polojs/tags": "^1",
+    "codejar": "^3.6.0",
+    "monaco-editor": "^0.33.0",
+    "prismjs": "^1.28.0"
+  },
+  "devDependencies": {
+    "@polojs/serve": "^1",
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.6"
+  }
+}

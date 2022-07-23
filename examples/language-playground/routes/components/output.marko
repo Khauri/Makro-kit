@@ -1,0 +1,6 @@
+import * as babel from '@babel/parser';
+
+<get/{value = ''} = "context" />
+
+pre
+  -- ${JSON.stringify(babel.parse(value ?? ''), null, 2)}

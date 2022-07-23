@@ -17,10 +17,19 @@ export const Config = z.object({
 // Walks upwards from the cwd to find a markoconfig.js
 export function findConfigFile(from = process.cwd()) {
   let last = from;
+  const filetypes = [
+    {type: 'ts', value: `polo.config.ts`},
+    {type: 'esm', value: `polo.config.js`},
+    {type: 'cjs', value: `polo.config.cjs`},
+    {type: 'esm', value: `polo.config.mjs`},
+    {type: 'json', value: `polo.config.json`},
+  ];
   do {
-    const config = `${last}/polo.js`;
-    if(fs.existsSync(config)){
-      return config;
+    for (const filetype of filetypes) {
+      const file = path.join(last, filetype.value);
+      if(fs.existsSync(file)) {
+        return file;
+      }
     }
     last = from;
     from = path.resolve(from, '..');
@@ -28,7 +37,7 @@ export function findConfigFile(from = process.cwd()) {
 }
 
 // Reads the config file
-export async function getConfigFile(from, inlineConfigOptions = {}) {
+export async function resolveConfig(from, inlineConfigOptions = {}) {
   const configPath = findConfigFile(from);
   const result = configPath ? await import(configPath) : {};
   // Merge inline config with config file. Inline takes precedence.
@@ -36,7 +45,6 @@ export async function getConfigFile(from, inlineConfigOptions = {}) {
 }
 
 export async function getConfig(from, inlineConfigOptions = {}) {
-  const userConf = await getConfigFile(from, inlineConfigOptions);
-  console.log(userConf);
+  const userConf = await resolveConfig(from, inlineConfigOptions);
   return Config.parse(userConf);
 }
