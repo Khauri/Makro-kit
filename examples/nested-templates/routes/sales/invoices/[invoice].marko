@@ -1,0 +1,17 @@
+export function load() {
+  // Fake invoice data
+  return {
+    name: 'Stankonia',
+    dueDate: Date.now(),
+    createdDate: Date.now(),
+    amount: 8000_00,
+    items: [
+      {name: 'Pro Plan', amount: 6000_00},
+      {name: 'Custom', amount: 8000_00},
+    ],
+  }
+}
+
+<load/{value} />
+
+-- ${value}

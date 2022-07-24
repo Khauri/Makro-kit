@@ -1,0 +1,19 @@
+export function load() {
+  // Get the settings
+  return [
+    {label: 'Overview', route: '/account/settings'},
+    {label: 'Subscriptions', route: '/account/subscriptions'},
+    {label: 'Invoices', route: '/account/invoices'},
+    {label: 'Customers', route: '/account/customers'},
+    {label: 'Deposits', route: '/account/deposits'},
+  ]
+}
+
+<load/{value: nav = []} />
+
+<div>
+  <for|link| of=nav>
+    <a href=link.route>${link.label}</a>
+  </for>
+  <slot />
+</div>

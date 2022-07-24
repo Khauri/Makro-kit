@@ -1,19 +1,23 @@
 <!-- 
   Used in nested routers. Grabs the appropriate template from out.global.
-  Templates themselves _cannot_ be stateful, but may contain stateful components in them.
+  For now layouts _cannot_ be stateful, but may contain stateful components in them.
 -->
 $ {
+  if(typeof window === 'object') {
+    throw new Error('A <slot> was found in a stateful component. Only pages and components can have state. Nest the stateful part of the component inside the layout.')
+  }
   const {global} = out;
   const slot = global._stack.length;
   const template = global._stack.shift();
   if(!template) {
     throw new Error('Too many slots were rendered without a matching template. Please use only one slot per template.')
   }
-  // FIXME: This means the <functions> tag won't work unless you're using slots
-  if(!global._fns) {
-    global._fns = [];
+  const context = {
+    templateName: template.name,
+    data: global._data[slot + 1],
+    fns: global._fns[slot + 1], // shift by 1 because the first slot is for the root layout?
   }
-  global._fns.push(Object.keys(template.functions));
+  global._contexts.push({key: component.elId(), context});
 }
 
 <await(template.load())>

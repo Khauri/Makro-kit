@@ -29,6 +29,12 @@ export class FastifyAdapter {
     this.app.register(handler, {prefix});
   }
 
+  /**
+   * Registers an endpoint
+   * @param {*} route 
+   * @param {*} handler 
+   * @param {*} options 
+   */
   registerRoute(route, handler, options = {}) {
     if(!Array.isArray(handler)) {
       handler = [handler];
@@ -46,7 +52,7 @@ export class FastifyAdapter {
    */
   registerPage(page, route) {
     this.app.register((instance, options, done) => {
-      function addSerializedData(req, reply) {
+      async function addSerializedData(req, reply) {
         const {params, query, url, routerPath} = req;
         reply.locals._meta = {
           actionsUrl: routerPath, // may modify this later
@@ -55,16 +61,15 @@ export class FastifyAdapter {
           url,
           routerPath,
         }
-        reply.locals.serializedGlobals._fns = true;
-        reply.locals.serializedGlobals._meta = true;
-        reply.locals.serializedGlobals._data = true;
+        Object.assign(reply.locals, await page.getLocals());
+        Object.assign(reply.locals.serializedGlobals, page.serializedProperties);
       }
 
       async function render(req, reply) {
         reply.locals._stack = page.stack;
         const context = {req, reply};
 
-        addSerializedData(req, reply);
+        await addSerializedData(req, reply);
 
         if(!(await page.match(context, reply.locals._meta))) {
           reply.callNotFound();
@@ -85,7 +90,7 @@ export class FastifyAdapter {
       
       if(page.hasFallbackTemplate()) {
         instance.setNotFoundHandler(async function (req, reply) {
-          addSerializedData(req, reply);
+          await addSerializedData(req, reply);
           reply.marko(await page.fallbackTemplate.load());
         });
       }
@@ -93,7 +98,7 @@ export class FastifyAdapter {
         instance.setErrorHandler(async function (error, req, reply) {
           // Handle not found request without preValidation and preHandler hooks
           console.error(error); // TODO: Replace this with whatever logger is set up
-          addSerializedData(req, reply);
+          await addSerializedData(req, reply);
           reply.marko(await page.errorTemplate.load());
         });
       }

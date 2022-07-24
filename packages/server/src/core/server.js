@@ -1,7 +1,7 @@
 import {setupDirectory} from './loader.js';
 import {closestFile} from '../utils/index.js';
 import {EventEmitter} from 'events';
-import { getTemplateStack } from './files/index.js';
+import {getTemplateStack} from './files/index.js';
 
 function normalizeRoute(path) {
   path = path
@@ -12,8 +12,9 @@ function normalizeRoute(path) {
 }
 
 export class Template {
-  constructor({loader} = {}) {
+  constructor({loader, name} = {}) {
     this.loader = loader;
+    this.name = name;
   }
 
   async load() {
@@ -28,6 +29,11 @@ export class Template {
       }, {});
     }
     return this.template;
+  }
+
+  async listFunctions() {
+    await this.load();
+    return Object.keys(this.functions);
   }
 
   getStaticData(context, ...args) {
@@ -61,8 +67,35 @@ export class Page {
     this.fallbackTemplate = fallbackTemplate;
   }
 
+  get stack() {
+    return this._stack.slice(1);
+  }
+
+  get serializedProperties() {
+    return {_fns: true, _meta: true, _contexts: true};
+  }
+
+  hasErrorTemplate() {
+    return !!this.errorTemplate;
+  }
+
+  hasFallbackTemplate() {
+    return !!this.fallbackTemplate;
+  }
+  
   getRoot() {
     return this._stack[0].load();
+  }
+
+  getFunctions() {
+    return Promise.all(this._stack.map(template => template.listFunctions()));
+  }
+
+  async getLocals() {
+    return {
+      _fns: await this.getFunctions(),
+      _contexts: [{key: 's0', context: {}}], // TODO: pre-populate with context from root template
+    };
   }
 
   async match(context, ...args) {
@@ -83,18 +116,6 @@ export class Page {
       data.push(loaded);
     }
     return data;
-  }
-
-  get stack() {
-    return this._stack.slice(1);
-  }
-
-  hasErrorTemplate() {
-    return !!this.errorTemplate;
-  }
-
-  hasFallbackTemplate() {
-    return !!this.fallbackTemplate;
   }
 }
 
@@ -161,21 +182,22 @@ export default class Server extends EventEmitter {
 
   async registerPage(route = '/', file) {
     route = normalizeRoute(route);
+    
     let errorTemplate;
     let fallbackTemplate;
 
     const stack = getTemplateStack(file, this.rootDir)
-      .map(p => new Template({path: p, loader: this.imports[p]}));
+      .map(p => new Template({name: p, loader: this.imports[p]}));
 
     const errorTemplatePath = await closestFile('_error.marko', file, this.rootDir);
     const fallbackTemplatePath = await closestFile('_fallback.marko', file, this.rootDir);
 
     if(errorTemplatePath) {
-      errorTemplate = new Template({path: errorTemplatePath, loader: this.imports[errorTemplatePath]});
+      errorTemplate = new Template({name: errorTemplatePath, loader: this.imports[errorTemplatePath]});
     }
 
     if(fallbackTemplatePath) {
-      fallbackTemplate = new Template({path: fallbackTemplatePath, loader: this.imports[fallbackTemplatePath]});
+      fallbackTemplate = new Template({name: fallbackTemplatePath, loader: this.imports[fallbackTemplatePath]});
     }
 
     const page = new Page({stack, errorTemplate, fallbackTemplate});

@@ -1,0 +1,10 @@
+static function getClosestContextValue(id, contexts = []) {
+  // Sort keys alphabetically
+  contexts = [...contexts].sort((a,b) => b.key.localeCompare(a.key));
+  const context = contexts.find(c => id.startsWith(c.key));
+  return context?.context;
+}
+
+<get/{_contexts} />
+<id/id />
+<return=getClosestContextValue(id, _contexts) />
