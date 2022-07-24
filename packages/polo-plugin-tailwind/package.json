@@ -1,9 +1,12 @@
 {
   "name": "@polojs/polo-plugin-tailwind",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "main": "index.js",
   "type": "module",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "autoprefixer": "^10.4.7",
     "postcss": "^8.4.14",
