@@ -11,7 +11,7 @@
     "build": "polo build"
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.6.1",
+    "@marko/tags-api-preview": "^0",
     "@polojs/query": "*",
     "@polojs/tags": "*",
     "superagent": "^8.0.0",

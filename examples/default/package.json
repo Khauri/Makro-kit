@@ -10,7 +10,7 @@
     "build": "polo build"
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.5.3",
+    "@marko/tags-api-preview": "^0",
     "@polojs/tags": "*",
     "@polojs/debug": "*"
   },

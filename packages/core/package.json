@@ -7,8 +7,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@marko/compiler": "^5.21.1",
-    "@marko/fastify": "^1.1.0",
+    "@marko/compiler": "^5.23.2",
+    "@marko/fastify": "^1.1.1",
     "@marko/tags-api-preview": "^0.6.1",
     "@marko/vite": "^2.3.12",
     "commander": "^9.2.0",

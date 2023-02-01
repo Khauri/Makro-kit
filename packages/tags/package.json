@@ -1,6 +1,6 @@
 {
   "name": "@polojs/tags",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publishConfig": {
     "access": "public"
   },
@@ -8,6 +8,6 @@
   "main": "index.js",
   "license": "MIT",
   "peerDependencies": {
-    "@marko/tags-api-preview": "^0.5.3"
+    "@marko/tags-api-preview": "^0"
   }
 }

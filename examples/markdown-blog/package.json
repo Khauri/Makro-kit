@@ -11,7 +11,7 @@
     "start": "polo serve"
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.6.1",
+    "@marko/tags-api-preview": "^0",
     "@polojs/debug": "*",
     "@polojs/tags": "*",
     "date-fns": "^2.28.0",

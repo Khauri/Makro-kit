@@ -5,10 +5,10 @@
   "license": "MIT",
   "private": true,
   "workspaces": [
+    "website",
     "packages/*",
-    "examples/*",
     "plugins/*",
-    "website"
+    "examples/*"
   ],
   "scripts": {
     "build": "turbo run build --filter=@polojs/*",
