@@ -18,13 +18,14 @@
     "node": "16.15.0"
   },
   "devDependencies": {
-    "@polojs/serve": "^1"
+    "@polojs/cli": "*"
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.5.3",
-    "@polojs/tags": "^1",
+    "@marko/tags-api-preview": "^0.6.1",
+    "@polojs/tags": "*",
+    "@vue/compiler-sfc": "^3.2.45",
     "highlight.js": "^11.5.1",
     "marked": "^4.0.17",
-    "vite-plugin-markdown": "^2.0.2"
+    "vite-plugin-markdown": "^2.1.0"
   }
 }

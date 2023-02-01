@@ -14,13 +14,13 @@
     "@babel/parser": "^7.18.9",
     "@babel/standalone": "^7.18.9",
     "@marko/tags-api-preview": "^0.5.3",
-    "@polojs/query": "^0",
-    "@polojs/tags": "^1",
+    "@polojs/query": "*",
+    "@polojs/tags": "*",
     "monaco-editor": "^0.33.0",
     "prismjs": "^1.28.0"
   },
   "devDependencies": {
-    "@polojs/polo-plugin-tailwind": "^0",
-    "@polojs/serve": "^1"
+    "@polojs/polo-plugin-tailwind": "*",
+    "@polojs/cli": "*"
   }
 }

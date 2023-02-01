@@ -19,7 +19,10 @@ export class Template {
 
   async load() {
     if(!this.template) {
-      const {default: template, ...rest} = (await this.loader());
+      const {
+        default: template,
+        ...rest
+      } = (await this.loader());
       this.template = template;
       this.functions = Object.entries(rest).reduce((acc, [name, fn]) => {
         if(typeof fn === 'function') {
@@ -68,11 +71,12 @@ export class Page {
   }
 
   get stack() {
-    return this._stack.slice(1);
+    // Previously this was returning this._stack.slice(1) but not sure why
+    return this._stack.slice();
   }
 
   get serializedProperties() {
-    return {_fns: true, _meta: true, _contexts: true};
+    return {_fns: true, _meta: true, _contexts: true, _data: true};
   }
 
   hasErrorTemplate() {
@@ -94,7 +98,7 @@ export class Page {
   async getLocals() {
     return {
       _fns: await this.getFunctions(),
-      _contexts: [{key: 's0', context: {}}], // TODO: pre-populate with context from root template
+      _contexts: [],
     };
   }
 
@@ -113,7 +117,7 @@ export class Page {
     for(const template of this.stack) {
       await template.load();
       const loaded = await template.getStaticData(context, ...args);
-      data.push(loaded);
+      data.push({template: template.template.___typeName, loaded});
     }
     return data;
   }

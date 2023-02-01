@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import path from 'path';
 import {program} from 'commander';
-import * as controller from '../index.js';
+import * as controller from '@polojs/core';
 
 program
-  .name('makro')
+  .name('polo')
   // Dev Command
   .command('dev')
   .alias('d')

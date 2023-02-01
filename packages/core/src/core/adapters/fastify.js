@@ -94,14 +94,18 @@ export class FastifyAdapter {
           reply.marko(await page.fallbackTemplate.load());
         });
       }
-      if(page.hasErrorTemplate()) {
-        instance.setErrorHandler(async function (error, req, reply) {
+      instance.setErrorHandler(async function (error, req, reply) {
+        console.error(error); // TODO: Replace this with whatever logger is set up
+        if(page.hasErrorTemplate()) {
           // Handle not found request without preValidation and preHandler hooks
-          console.error(error); // TODO: Replace this with whatever logger is set up
           await addSerializedData(req, reply);
           reply.marko(await page.errorTemplate.load());
-        });
-      }
+        } else {
+          // TODO: in production fallback to a generic error page
+          reply.status(500);
+          reply.send(`<pre>${error.stack}</pre>`)
+        }
+      });
       done();
     }, {prefix: route.endsWith('/*') ? route.replace(/\/\*$/, '*') : route});
   }

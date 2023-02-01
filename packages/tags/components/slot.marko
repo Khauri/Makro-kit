@@ -12,10 +12,12 @@ $ {
   if(!template) {
     throw new Error('Too many slots were rendered without a matching template. Please use only one slot per template.')
   }
+  // TODO: For slots we should use the template name or something
+  console.log({component});
   const context = {
     templateName: template.name,
-    data: global._data[slot + 1],
-    fns: global._fns[slot + 1], // shift by 1 because the first slot is for the root layout?
+    data: global._data[slot],
+    fns: global._fns[slot],
   }
   global._contexts.push({key: component.elId(), context});
 }

@@ -1,0 +1,14 @@
+{
+  "name": "@polojs/cli",
+  "version": "0.0.1",
+  "description": "Polo CLI",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "commander": "^10.0.0",
+    "@polojs/core": "*"
+  },
+  "bin": {
+    "polo": "index.js"
+  }
+}

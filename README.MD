@@ -1,23 +1,27 @@
 WARNING:
 
-I give no guarantees that this will work on your machine. See the Development section for some known issues and workarounds.
+Under heavy development. I give no guarantees that this will work on your machine. See the Development section for some known issues and workarounds.
 
 # Polo.js
 
-Polo JS is a zero-config [Marko](https://markojs.com/) meta framework with a super fast dev environment powered by vite and a file-system based router powered by fastify. 
+Polo JS is a zero-config [Marko](https://markojs.com/) framework with a super fast dev environment powered by vite and a file-system based router powered by fastify.
 
-Other goodies include:
-  - SCSS Support (planned)
-  - Skypack/ESM URL import support (planned, but maybe not possible)
-  - [Snapshot testing](https://github.com/Khauri/mikro-ui/tree/master/packages/mikro-test) (planned)
-  - Edge Worker support. (planned)
-  - Route splitting. (planned)
-  - Built-in suite of helpful components: transitions, stores, etc. (planned)
-  - A11y auditing (planned)
-  - multi-language build support (planned)
-  - Optional database adapters w/ migrations and realtime listener support (planned)
-    - [Postgres](https://github.com/supabase/realtime) and SQLite adapters (planned)
-  - Live Views/Quick websocket interactions and libraries (planned)
+Zero Config means PoloJS tries to provide the best out-of-the-box experience with sensible and performant defaults.
+
+## Roadmap/Dreams
+  - Convert everything to typescript
+  - SCSS Support by default
+  - Web Workers, Edge Workers, Service Workers, and PWA Support
+  - Clustering Support
+  - Skypack/ESM URL import support (possible?)
+  - [Snapshot testing](https://github.com/Khauri/mikro-ui/tree/master/packages/mikro-test)
+  - Route splitting
+  - Built-in suite of helpful components: transitions, stores, etc.
+  - A11y auditing
+  - multi-language build support
+  - Optional database adapters w/ migrations and realtime listener support
+    - [Postgres](https://github.com/supabase/realtime) and SQLite adapters
+  - Live Views/Quick websocket interactions and libraries
     - Supabase-type Database subscriptions (out of scope?)
 
 ## Documentation

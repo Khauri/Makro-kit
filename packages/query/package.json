@@ -14,9 +14,9 @@
     "react-query": "4.0.0-beta.23"
   },
   "devDependencies": {
-    "@polojs/serve": "^1.1.0"
+    "@polojs/cli": "*"
   },
   "peerDependencies": {
-    "@marko/tags-api-preview": "^0.5.3"
+    "@marko/tags-api-preview": "^0"
   }
 }

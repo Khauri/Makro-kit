@@ -21,11 +21,12 @@ async function getConfigs({root, ...rest}) {
     ...config.viteConfig,
     plugins: [marko(), ...config.viteConfig?.plugins ?? []],
     // configFile: path.join(__dirname, "vite.config.js"),
+    appType: 'custom',
     server: {
       port: config.port ?? PORT,
       base: '/',
       strictPort: true,
-      middlewareMode: 'ssr',
+      middlewareMode: true,
       ...config.viteConfig?.server,
     },
     build: {
@@ -70,6 +71,7 @@ export async function dev(dir, options) {
         await server.init(poloConfig);
         await server.handle(req, res);
       } catch (err) {
+        if (err) devServer.ssrFixStacktrace(err);
         return next(err);
       }
     })
@@ -79,6 +81,7 @@ export async function dev(dir, options) {
   const address = `http://localhost:${server.address().port}`;
   console.log(`Env: ${NODE_ENV}`);
   console.log(`Address: ${address}`);
+  return {env: NODE_ENV, address, viteConfig, poloConfig};
 }
 
 export async function build(dir, options) {

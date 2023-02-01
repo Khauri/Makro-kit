@@ -8,6 +8,8 @@ Usage:
 yarn add @polojs/polo-plugin-tailwind
 ```
 
+PoloJS will automatically detect the plugin.
+
 Running or building the server will automatically create the necessary config files if they don't already exist.
 
 To use tailwind import the tailwind css file somewhere in your page or layouts.

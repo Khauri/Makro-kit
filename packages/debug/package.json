@@ -1,0 +1,6 @@
+{
+  "name": "@polojs/debug",
+  "version": "0.0.1",
+  "description": "Debug hooks for Polo",
+  "main": "index.js"
+}

@@ -11,14 +11,13 @@
     "build": "polo build"
   },
   "dependencies": {
-    "@marko/tags-api-preview": "^0.5.3",
-    "@polojs/query": "^0",
-    "@polojs/swagger-inline-plugin": "^0",
-    "@polojs/tags": "^1",
+    "@marko/tags-api-preview": "^0.6.1",
+    "@polojs/query": "*",
+    "@polojs/tags": "*",
     "superagent": "^8.0.0",
     "zod": "^3.17.9"
   },
   "devDependencies": {
-    "@polojs/serve": "^1"
+    "@polojs/cli": "*"
   }
 }

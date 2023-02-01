@@ -1,12 +1,13 @@
 {
-  "name": "pollo",
-  "version": "1.0.0",
+  "name": "polo",
+  "version": "0.0.1",
   "main": "index.js",
   "license": "MIT",
   "private": true,
   "workspaces": [
     "packages/*",
     "examples/*",
+    "plugins/*",
     "website"
   ],
   "scripts": {
@@ -16,13 +17,11 @@
     "deploy": "turbo run build test lint deploy --filter=@polojs/*"
   },
   "volta": {
-    "node": "16.15.0",
-    "yarn": "2.4.3"
+    "node": "16.16.0",
+    "npm": "9.4.0"
   },
   "devDependencies": {
-    "turbo": "^1.3.1"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.23.0"
+    "turbo": "^1.7.1",
+    "@changesets/cli": "^2.26.0"
   }
 }

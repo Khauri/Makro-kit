@@ -80,14 +80,12 @@ export async function setupDirectory(server, config) {
   
   // Make each path absolute for lookup later
   imports = Object.entries(paths).reduce((acc, [key, value]) => {
-    if(import.meta.url) {
-      key = path.resolve(dirname(import.meta.url), key);
-    } else {
-      // This is super scuffed, but import.meta.url doesn't seem to work in builds? Kind of a pain in the ass right now...
-      key = `${key.replace(/^(\.\.\/)+/, '')}`; // remove leading relative path
-      key = `${routesDir.slice(0, routesDir.indexOf(key.split(/(\/[^\/]+)/).at(1)))}/${key.split(/(\/.+)/).at(1)}`;
-      key = path.resolve(routesDir, key);
+    // If the path import is absolute, make it relative. 
+    // import.meta.glob returns absolute paths when used with `~` it seems
+    if(key.startsWith('/')) {
+      key = key.slice(1);
     }
+    key = path.resolve(config.rootDir, key);
     acc[key] = value;
     return acc;
   }, {});
@@ -99,7 +97,6 @@ export async function setupDirectory(server, config) {
     return acc;
   }, {});
   vol.fromJSON(virtualFS, config.rootDir);
-  // console.log(virtualFS, vol.toJSON());
   server.config({imports});
   // Walk the directory tree
   await walk(routesDir, routesDir, server);

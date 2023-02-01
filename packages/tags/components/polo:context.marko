@@ -1,10 +1,21 @@
-static function getClosestContextValue(id, contexts = []) {
-  // Sort keys alphabetically
+// Gets the closest context value to where this component is used
+static function getClosestContextValue(id, global) {
+  const contexts = global._contexts;
+  if(!contexts?.length) {
+    const context = {
+      data: global._data?.[0]?.loaded,
+      fns: global._fns[0],
+    };
+    return context;
+  }
+  // Sort keys alphabetically and then find the first context that starts with id
   contexts = [...contexts].sort((a,b) => b.key.localeCompare(a.key));
   const context = contexts.find(c => id.startsWith(c.key));
-  return context?.context;
+  return context?.context ?? null;
 }
 
-<get/{_contexts} />
+<get/global />
 <id/id />
-<return=getClosestContextValue(id, _contexts) />
+
+<let/context=getClosestContextValue(id, global) />
+<return=context />
